@@ -1,0 +1,10 @@
+[package]
+name = "hello"
+version = "0.1.0"
+authors = ["Алексей Карасев <karasev.alexey@gmail.com>"]
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
