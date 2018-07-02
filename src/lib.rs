@@ -15,10 +15,12 @@ pub extern "C" fn init() {
 pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
     eos::print_str("Receiver: ");
     eos::print_u64(receiver);
+    eos::print_str("ReceiverMy: ");
+    eos::print_u64(eos::str_to_name("hello.code"));
     eos::print_str(" Code: ");
-    eos::print_u64(code);
+    eos::print_name(code);
     eos::print_str(" Action: ");
-    eos::print_u64(action);
+    eos::print_name(action);
 }
 
 /// This function is called on panic.
