@@ -1,22 +1,33 @@
 mod alloc;
 
+use self::alloc::Box;
+
+enum Void {}
+
 extern "C" {
     fn printi(c: i64);
     fn printui(c: u64);
     fn prints_l(bytes: *const u8, len: i32);
     fn printn(name: u64);
 
-    fn read_action_data(bytes: *mut u8, len: u32) -> u32;
+    pub fn action_data_size() -> u32;
+    fn read_action_data(bytes: *mut Void, len: u32) -> u32;
 
-    fn malloc(size: usize);
+    fn malloc(size: usize) -> *mut Void;
     fn calloc(count: usize, size: usize);
-    fn realloc(bytes: *mut u8, size: usize);
-    fn free(bytes: *mut u8);
+    fn realloc(bytes: *mut Void, size: usize);
+    fn free(bytes: *mut Void);
 }
 
 // use core::cell::Cell;
 
-// pub fn read_action_bytes() -> &[u8] {}
+pub fn read_action<T>() -> Box<T> {
+    unsafe {
+        let size = action_data_size();
+        let ptr = malloc(size as usize);
+        Box::from_raw(ptr as *mut T)
+    }
+}
 
 pub fn print_i64(i: i64) {
     unsafe {

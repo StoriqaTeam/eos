@@ -1,7 +1,10 @@
-use super::unique::Unique;
-use super::super::{free, malloc};
+use core::ops::Deref;
 
-struct Box<T> {
+use super::unique::Unique;
+use super::super::{free, malloc, Void};
+
+
+pub struct Box<T> {
     ptr: Unique<T>
 }
 
@@ -13,6 +16,17 @@ impl<T> Box<T> {
 
 impl<T> Drop for Box<T> {
     fn drop(&mut self) {
-        free(self.ptr.as_ptr());
+        // unsafe {
+        //     free(self.ptr.as_ptr() as *mut Void);
+        // }
+    }
+}
+
+impl<T> Deref for Box<T> {
+    type Target = T;
+    fn deref(&self) -> &T {
+        unsafe {
+            &*self.ptr.as_ptr()
+        }
     }
 }

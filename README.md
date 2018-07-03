@@ -19,7 +19,7 @@ rustup target add wasm32-unknown-unknown
 
 ## Starting private blockchain
 ```
-nodeos -e -p eosio --plugin eosio::chain_api_plugin --plugin eosio::history_api_plugin
+nodeos -e -p eosio --plugin eosio::chain_api_plugin --plugin eosio::history_api_plugin --contracts-console
 ```
 
 ## Setting up wallet and accounts
@@ -27,6 +27,14 @@ In `eos` folder
 ```
 cleos wallet create
 cleos wallet unlock
+cleos wallet import <root_signature_key>
+```
+You can find root_signature_key in config.ini of nodeos,
+e.g. /Users/alex/Library/Application\ Support/eosio/nodeos/config/config.ini.
+
+If cleos can't start keosd or smth like that you can edit keosd config in ~/eos-wallet/config.ini to point to a port other than 8888 and then alias cleos as `cleos --wallet-url http://localhost:8899`
+
+```
 cleos set contract eosio build/contracts/eosio.bios -p eosio@active
 cleos create key
 cleos wallet import <private key from previous step>
