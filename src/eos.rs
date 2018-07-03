@@ -6,9 +6,9 @@ extern "C" {
     fn read_action_data(bytes: *mut u8, len: u32) -> u32;
 }
 
-use core::cell::Cell;
+// use core::cell::Cell;
 
-pub fn read_action_bytes() -> &[u8] {}
+// pub fn read_action_bytes() -> &[u8] {}
 
 pub fn print_i64(i: i64) {
     unsafe {
