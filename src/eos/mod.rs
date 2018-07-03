@@ -1,9 +1,17 @@
+mod alloc;
+
 extern "C" {
     fn printi(c: i64);
     fn printui(c: u64);
     fn prints_l(bytes: *const u8, len: i32);
     fn printn(name: u64);
+
     fn read_action_data(bytes: *mut u8, len: u32) -> u32;
+
+    fn malloc(size: usize);
+    fn calloc(count: usize, size: usize);
+    fn realloc(bytes: *mut u8, size: usize);
+    fn free(bytes: *mut u8);
 }
 
 // use core::cell::Cell;
