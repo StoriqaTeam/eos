@@ -4,8 +4,8 @@
 
 mod eos;
 
-use core::panic::PanicInfo;
 use core::ops::Deref;
+use core::panic::PanicInfo;
 
 #[repr(C)]
 struct HiAction {
@@ -20,6 +20,14 @@ pub extern "C" fn init() {
 #[no_mangle]
 pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
     // eos::print_str("Receiver: ");
+    // let b: Box<i64> = Box::new(5);
+    // eos::print_i64(*b);
+    unsafe {
+        core::ptr::write(4u64 as *mut u64, 123);
+        let x: u64 = core::ptr::read(4u64 as *const u64);
+        eos::print_u64(x);
+    }
+
     // eos::print_name(receiver);
     // eos::print_str(" Code: ");
     // eos::print_name(code);
@@ -28,7 +36,7 @@ pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
     // unsafe {
     //     eos::print_u64(eos::action_data_size() as u64);
     // }
-    let act = eos::read_action::<HiAction>();
+    // let act = eos::read_action::<HiAction>();
     // eos::print_str(" Read Action: ");
     // eos::print_name(act.deref().name);
 
@@ -39,9 +47,9 @@ pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
     // }
 }
 
-fn hi() {
-    eos::print_str("Received action HI!");
-}
+// fn hi() {
+//     eos::print_str("Received action HI!");
+// }
 
 /// This function is called on panic.
 #[panic_implementation]
