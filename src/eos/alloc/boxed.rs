@@ -16,9 +16,9 @@ impl<T> Box<T> {
 
 impl<T> Drop for Box<T> {
     fn drop(&mut self) {
-        // unsafe {
-        //     free(self.ptr.as_ptr() as *mut Void);
-        // }
+        unsafe {
+            free(self.ptr.as_ptr() as *mut Void);
+        }
     }
 }
 

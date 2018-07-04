@@ -1,11 +1,16 @@
 #![feature(lang_items)]
 #![feature(panic_implementation)]
+#![feature(global_alloc)]
 #![no_std]
 
 mod eos;
+mod allocator;
 
 use core::ops::Deref;
 use core::panic::PanicInfo;
+
+#[global_allocator]
+static ALLOC: allocator::Allocator = allocator::Allocator;
 
 #[repr(C)]
 struct HiAction {
@@ -19,14 +24,17 @@ pub extern "C" fn init() {
 
 #[no_mangle]
 pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
+    allocator::Allocator::init();
     // eos::print_str("Receiver: ");
     // let b: Box<i64> = Box::new(5);
     // eos::print_i64(*b);
-    unsafe {
-        core::ptr::write(4u64 as *mut u64, 123);
-        let x: u64 = core::ptr::read(4u64 as *const u64);
-        eos::print_u64(x);
-    }
+    // let mem_top: *mut u16 = allocator::START_ADDRESS;
+    // let p = 0x0u64 as *mut u64;
+    // unsafe {
+    //     p.write(123);
+    //     let x: u64 = p.read();
+    //     // eos::print_u64(x);
+    // }
 
     // eos::print_name(receiver);
     // eos::print_str(" Code: ");
