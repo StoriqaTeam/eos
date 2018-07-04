@@ -1,8 +1,10 @@
-mod alloc;
+// mod alloc;
 
-use self::alloc::Box;
+use alloc::boxed::Box;
+use core::alloc::{Layout, GlobalAlloc};
+use ALLOC;
 
-enum Void {}
+type Opaque = u8;
 
 extern "C" {
     fn printi(c: i64);
@@ -11,20 +13,18 @@ extern "C" {
     fn printn(name: u64);
 
     pub fn action_data_size() -> u32;
-    fn read_action_data(bytes: *mut Void, len: u32) -> u32;
-
-    fn malloc(size: usize) -> *mut Void;
-    fn calloc(count: usize, size: usize);
-    fn realloc(bytes: *mut Void, size: usize);
-    fn free(bytes: *mut Void);
+    fn read_action_data(bytes: *mut Opaque, len: u32) -> u32;
 }
 
 // use core::cell::Cell;
 
 pub fn read_action<T>() -> Box<T> {
     unsafe {
-        let size = action_data_size();
-        let ptr = malloc(size as usize);
+        // let size = action_data_size();
+        let size = ::core::mem::size_of::<T>();
+        let layout = Layout::from_size_align(size, ::core::mem::align_of::<T>()).unwrap();
+        let ptr = ALLOC.alloc(layout);
+        read_action_data(ptr, size as u32);
         Box::from_raw(ptr as *mut T)
     }
 }
