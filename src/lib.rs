@@ -3,6 +3,7 @@
 #![feature(alloc)]
 #![feature(global_alloc)]
 #![feature(oom)]
+#![feature(core_intrinsics)]
 #![no_std]
 
 extern crate alloc;
@@ -10,9 +11,8 @@ extern crate alloc;
 mod eos;
 mod allocator;
 
-use core::ops::Deref;
 use core::panic::PanicInfo;
-use alloc::boxed::Box;
+use core::intrinsics::abort;
 
 #[global_allocator]
 pub static ALLOC: allocator::Allocator = allocator::Allocator;
@@ -30,48 +30,35 @@ pub extern "C" fn init() {
 #[no_mangle]
 pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
     allocator::Allocator::init();
-    // let b = Box::new(receiver + code);
-    //  eos::print_u64(*b);
+    eos::print_str("Receiver: ");
+    eos::print_name(receiver);
+    eos::print_str(" Code: ");
+    eos::print_name(code);
+    eos::print_str(" Action: ");
+    eos::print_name(action);
+    eos::print_str(" ");
 
-    // eos::print_str("Receiver: ");
-    // let b: Box<i64> = Box::new(5);
-    // eos::print_i64(*b);
-    // let mem_top: *mut u16 = allocator::START_ADDRESS;
-    // let p = 0x0u64 as *mut u64;
-    // unsafe {
-    //     p.write(123);
-    //     let x: u64 = p.read();
-    //     // eos::print_u64(x);
-    // }
-
-    // eos::print_name(receiver);
-    // eos::print_str(" Code: ");
-    // eos::print_name(code);
-    // eos::print_str(" Action: ");
-    // eos::print_name(action);
-    // unsafe {
-    //     eos::print_u64(eos::action_data_size() as u64);
-    // }
-    let act = eos::read_action::<HiAction>();
-    eos::print_str(" Read Action: ");
-    eos::print_name(act.deref().name);
-
-    // if action == eos::str_to_name("hi") {
-    //     hi();
-    // } else {
-    //     eos::print_str("No such action");
-    // }
+    if action == eos::str_to_name("hi") {
+        let data = eos::read_action::<HiAction>();
+        hi(data.name);
+    } else {
+        eos::print_str("No such action");
+    }
 }
 
-// fn hi() {
-//     eos::print_str("Received action HI!");
-// }
+fn hi(name: u64) {
+    eos::print_str("Received action Hi for name: ");
+    eos::print_name(name);
+}
 
 /// This function is called on panic.
 #[panic_implementation]
 #[no_mangle]
-pub fn panic(_info: &PanicInfo) -> ! {
-    loop {}
+pub fn panic(info: &PanicInfo) -> ! {
+    eos::print_str("Wasm paniced!");
+    unsafe {
+        abort()
+    }
 }
 
 // Need to provide a tiny `oom` lang-item implementation for
@@ -79,5 +66,8 @@ pub fn panic(_info: &PanicInfo) -> ! {
 #[lang = "oom"]
 #[no_mangle]
 pub extern "C" fn oom() -> ! {
-    loop {}
+    eos::print_str("Out of memory!");
+    unsafe {
+        abort()
+    }
 }

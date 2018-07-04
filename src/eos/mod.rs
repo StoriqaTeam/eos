@@ -16,8 +16,6 @@ extern "C" {
     fn read_action_data(bytes: *mut Opaque, len: u32) -> u32;
 }
 
-// use core::cell::Cell;
-
 pub fn read_action<T>() -> Box<T> {
     unsafe {
         // let size = action_data_size();
