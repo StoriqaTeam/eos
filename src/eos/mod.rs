@@ -1,7 +1,9 @@
-// mod alloc;
+mod deserializer;
 
+use self::deserializer::EosDeserializer;
 use alloc::boxed::Box;
-use core::alloc::{Layout, GlobalAlloc};
+use core::alloc::{GlobalAlloc, Layout};
+use serde::{Deserialize, Deserializer};
 use ALLOC;
 
 type Opaque = u8;
@@ -16,14 +18,20 @@ extern "C" {
     fn read_action_data(bytes: *mut Opaque, len: u32) -> u32;
 }
 
-pub fn read_action<T>() -> Box<T> {
+pub fn read_action<'de, T>() -> Box<T>
+where
+    T: Deserialize<'de>,
+{
     unsafe {
-        // let size = action_data_size();
-        let size = ::core::mem::size_of::<T>();
-        let layout = Layout::from_size_align(size, ::core::mem::align_of::<T>()).unwrap();
+        let size = action_data_size() as usize;
+        let align = 1; //byte
+        let layout = Layout::from_size_align(size, align).unwrap();
         let ptr = ALLOC.alloc(layout);
         read_action_data(ptr, size as u32);
-        Box::from_raw(ptr as *mut T)
+        let data = ::core::slice::from_raw_parts(ptr, size);
+        let mut deserializer = EosDeserializer::new(data);
+        let res = ::serde::Deserialize::deserialize(&mut deserializer).unwrap();
+        Box::new(res)
     }
 }
 

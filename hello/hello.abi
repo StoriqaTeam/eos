@@ -5,7 +5,12 @@
   "structs": [{
       "name": "hi",
       "base": "",
-      "fields": [{
+      "fields": [
+        {
+          "name": "message",
+          "type": "string"
+        }
+        {
           "name": "user",
           "type": "name"
         }
