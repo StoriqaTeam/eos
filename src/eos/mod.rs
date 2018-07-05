@@ -2,6 +2,7 @@ mod deserialize;
 
 pub use self::deserialize::{Deserialize, Reader};
 use core::alloc::{GlobalAlloc, Layout};
+use error::Error;
 use ALLOC;
 
 type Opaque = u8;
@@ -16,7 +17,7 @@ extern "C" {
     fn read_action_data(bytes: *mut Opaque, len: u32) -> u32;
 }
 
-pub fn read_action<T: Deserialize>() -> T {
+pub fn read_action<T: Deserialize>() -> Result<T, Error> {
     unsafe {
         let size = action_data_size() as usize;
         let align = 1; // 1 byte
@@ -25,10 +26,7 @@ pub fn read_action<T: Deserialize>() -> T {
         read_action_data(ptr, size as u32);
         let slice = ::core::slice::from_raw_parts(ptr, size);
         let mut deserializer = Reader::new(slice);
-        match <T as Deserialize>::deserialize(deserializer) {
-            Ok(res) => res,
-            Err(e) => panic!("Error deserializing"),
-        }
+        <T as Deserialize>::deserialize(deserializer)
     }
 }
 

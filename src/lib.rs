@@ -31,8 +31,11 @@ pub extern "C" fn init() {
 pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
     allocator::Allocator::init();
     if action == eos::str_to_name("review") {
-        let ReviewAction { user, hash, mark } = eos::read_action::<ReviewAction>();
-        review(user, hash, mark);
+        if let Ok(ReviewAction { user, hash, mark }) = eos::read_action::<ReviewAction>() {
+            review(user, hash, mark);
+        } else {
+            eos::print_str("Failed to deserialize data for `review` action");
+        }
     } else {
         eos::print_str("No such action");
     }
