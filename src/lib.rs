@@ -56,7 +56,7 @@ fn hi(name: u64) {
 #[panic_implementation]
 #[no_mangle]
 pub fn panic(info: &PanicInfo) -> ! {
-    eos::print_str("Wasm paniced!");
+    eos::print_str("Wasm panicked!");
     unsafe { abort() }
 }
 

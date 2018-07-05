@@ -1,4 +1,4 @@
-use eos::{Deserialize, Deserializer, Error};
+use eos::{Deserialize, Reader};
 
 #[repr(C)]
 pub struct HiAction {
@@ -7,8 +7,9 @@ pub struct HiAction {
 }
 
 impl Deserialize for HiAction {
-    fn deserialize(mut d: Deserializer) -> Result<Self, Error> {
-        let byte1 = d.read_u8()?;
+    type Error = ();
+    fn deserialize(mut d: Reader) -> Result<Self, Self::Error> {
+        let byte1: u8 = d.read();
         Ok(HiAction { byte1 })
     }
 }

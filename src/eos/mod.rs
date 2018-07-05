@@ -1,7 +1,6 @@
-mod deserializer;
+mod deserialize;
 
-pub use self::deserializer::{Deserialize, Deserializer, Error};
-use alloc::boxed::Box;
+pub use self::deserialize::{Deserialize, Reader};
 use core::alloc::{GlobalAlloc, Layout};
 use ALLOC;
 
@@ -17,18 +16,17 @@ extern "C" {
     fn read_action_data(bytes: *mut Opaque, len: u32) -> u32;
 }
 
-pub fn read_action<T: Deserialize>() -> Box<T> {
+pub fn read_action<T: Deserialize>() -> T {
     unsafe {
         let size = action_data_size() as usize;
-        let align = 1; //byte
+        let align = 1; // 1 byte
         let layout = Layout::from_size_align(size, align).unwrap();
         let ptr = ALLOC.alloc(layout);
         read_action_data(ptr, size as u32);
-        let data = ::core::slice::from_raw_parts(ptr, size);
-        let mut deserializer = Deserializer::new(data);
+        let mut deserializer = Reader::new(ptr);
         match <T as Deserialize>::deserialize(deserializer) {
-            Ok(res) => Box::new(res),
-            Err(e) => loop {},
+            Ok(res) => res,
+            Err(e) => panic!("Error deserializing"),
         }
     }
 }
