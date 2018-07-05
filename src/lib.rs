@@ -8,38 +8,17 @@
 
 #[macro_use]
 extern crate alloc;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
 
 mod allocator;
 mod eos;
+mod models;
 
 use core::intrinsics::abort;
 use core::panic::PanicInfo;
+use models::*;
 
 #[global_allocator]
 pub static ALLOC: allocator::Allocator = allocator::Allocator;
-
-#[derive(Deserialize)]
-#[repr(C)]
-struct HiAction {
-    // pub name: u64,
-    pub byte1: u8,
-    pub byte2: u8,
-    pub byte3: u8,
-    pub byte4: u8,
-    pub byte5: u8,
-    pub byte6: u8,
-    pub byte7: u8,
-    pub byte8: u8,
-    pub byte9: u8,
-    pub byte10: u8,
-    pub byte11: u8,
-    pub byte12: u8,
-    pub byte13: u8,
-    pub byte14: u8,
-}
 
 #[no_mangle]
 pub extern "C" fn init() {
@@ -60,28 +39,6 @@ pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
     if action == eos::str_to_name("hi") {
         let data = eos::read_action::<HiAction>();
         eos::print_u64(data.byte1 as u64);
-        eos::print_str(" ");
-        eos::print_u64(data.byte2 as u64);
-        eos::print_str(" ");
-        eos::print_u64(data.byte3 as u64);
-        eos::print_str(" ");
-        eos::print_u64(data.byte4 as u64);
-        eos::print_str(" ");
-        eos::print_u64(data.byte5 as u64);
-        eos::print_str(" ");
-        eos::print_u64(data.byte6 as u64);
-        eos::print_str(" ");
-        eos::print_u64(data.byte7 as u64);
-        eos::print_str(" ");
-        eos::print_u64(data.byte8 as u64);
-        eos::print_str(" ");
-        eos::print_u64(data.byte9 as u64);
-        eos::print_str(" ");
-        eos::print_u64(data.byte10 as u64);
-        eos::print_str(" ");
-        eos::print_u64(data.byte11 as u64);
-        eos::print_str(" ");
-        eos::print_u64(data.byte12 as u64);
         eos::print_str(" ");
 
     // hi(data.name);
