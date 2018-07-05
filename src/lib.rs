@@ -38,7 +38,7 @@ pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
 
     if action == eos::str_to_name("hi") {
         let data = eos::read_action::<HiAction>();
-        eos::print_u64(data.byte1 as u64);
+        eos::print_str(&data.message);
         eos::print_str(" ");
 
     // hi(data.name);
