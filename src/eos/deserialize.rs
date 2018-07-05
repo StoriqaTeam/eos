@@ -30,6 +30,10 @@ impl Reader {
             let s_byte: u8 = self.read_primitive();
             (s_byte as u16) >> 7 + (l_byte as u16 - 128)
         };
-        unsafe { String::from_raw_parts(self.ptr, len as usize, len as usize) }
+        unsafe {
+            let res = String::from_raw_parts(self.ptr, len as usize, len as usize);
+            self.ptr = self.ptr.offset(len as isize);
+            res
+        }
     }
 }
