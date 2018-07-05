@@ -38,7 +38,11 @@ unsafe impl GlobalAlloc for Allocator {
         layout: Layout,
         new_size: usize
     ) -> *mut Opaque {
-        // unimplemented
-        loop {}
+        let top = START_ADDRESS.read() as *mut Opaque;
+        for i in 0..layout.size() {
+            top.offset(i as isize).write(ptr.offset(i as isize).read());
+        }
+        START_ADDRESS.write((top as u16) + (new_size as u16));
+        top
     }
 }
