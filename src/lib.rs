@@ -13,6 +13,7 @@ mod allocator;
 mod eos;
 mod models;
 
+use alloc::string::String;
 use core::intrinsics::abort;
 use core::panic::PanicInfo;
 use models::*;
@@ -28,28 +29,21 @@ pub extern "C" fn init() {
 #[no_mangle]
 pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
     allocator::Allocator::init();
-    eos::print_str("Receiver: ");
-    eos::print_name(receiver);
-    eos::print_str(" Code: ");
-    eos::print_name(code);
-    eos::print_str(" Action: ");
-    eos::print_name(action);
-    eos::print_str(" ");
-
-    if action == eos::str_to_name("hi") {
-        let data = eos::read_action::<HiAction>();
-        eos::print_str(&data.message);
-        eos::print_str(" ");
-
-    // hi(data.name);
+    if action == eos::str_to_name("review") {
+        let ReviewAction { user, hash, mark } = eos::read_action::<ReviewAction>();
+        review(user, hash, mark);
     } else {
         eos::print_str("No such action");
     }
 }
 
-fn hi(name: u64) {
-    eos::print_str("Received action Hi for name: ");
-    eos::print_name(name);
+fn review(user: u64, hash: String, mark: i32) {
+    eos::print_str("Received action review for user: ");
+    eos::print_name(user);
+    eos::print_str(" hash: ");
+    eos::print_str(&hash);
+    eos::print_str(" mark: ");
+    eos::print_i64(mark as i64);
 }
 
 /// This function is called on panic.

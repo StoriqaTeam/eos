@@ -3,22 +3,27 @@
   "version": "eosio::abi/1.0",
   "types": [],
   "structs": [{
-      "name": "hi",
+      "name": "review",
       "base": "",
       "fields": [
         {
-          "name": "message",
+          "name": "user",
+          "type": "name"
+        },
+        {
+          "name": "hash",
           "type": "string"
         }
         {
-          "name": "user",
-          "type": "name"
+          "name": "mark",
+          "type": "int32"
         }
+
       ]
     }],
   "actions": [{
-    "name": "hi",
-    "type": "hi",
+    "name": "review",
+    "type": "review",
     "ricardian_contract": ""
   }],
   "tables": [],
