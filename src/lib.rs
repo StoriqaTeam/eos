@@ -12,6 +12,7 @@ extern crate alloc;
 mod allocator;
 mod eos;
 mod models;
+mod error;
 
 use alloc::string::String;
 use core::intrinsics::abort;

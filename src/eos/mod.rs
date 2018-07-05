@@ -23,7 +23,8 @@ pub fn read_action<T: Deserialize>() -> T {
         let layout = Layout::from_size_align(size, align).unwrap();
         let ptr = ALLOC.alloc(layout);
         read_action_data(ptr, size as u32);
-        let mut deserializer = Reader::new(ptr);
+        let slice = ::core::slice::from_raw_parts(ptr, size);
+        let mut deserializer = Reader::new(slice);
         match <T as Deserialize>::deserialize(deserializer) {
             Ok(res) => res,
             Err(e) => panic!("Error deserializing"),

@@ -1,39 +1,52 @@
 use alloc::string::String;
+use error::Error;
 
 pub trait Deserialize: Sized {
-    type Error;
-    fn deserialize(d: Reader) -> Result<Self, Self::Error>;
+    fn deserialize(d: Reader) -> Result<Self, Error>;
 }
 
-pub struct Reader {
-    ptr: *mut u8,
+pub struct Reader<'a> {
+    bytes: &'a [u8],
 }
 
-impl Reader {
-    pub fn new(ptr: *mut u8) -> Self {
-        Reader { ptr }
+impl<'a> Reader<'a> {
+    pub fn new<'b>(bytes: &'b [u8]) -> Reader<'b> {
+        Reader { bytes }
     }
 
-    pub fn read_primitive<T>(&mut self) -> T {
+    pub fn read_sized<T>(&mut self) -> Result<T, Error> {
+        let size = ::core::mem::size_of::<T>();
+        if size > self.bytes.len() {
+            return Err(Error::MemoryOutOfBounds)
+        }
+        let ptr: *const T = self.bytes.as_ptr() as *const T;
+        self.bytes = &self.bytes[size..];
         unsafe {
-            let res = (self.ptr as *const T).read();
-            self.ptr = self.ptr.offset(::core::mem::size_of::<T>() as isize);
-            res
+            Ok(ptr.read())
         }
     }
 
-    pub fn read_string(&mut self) -> String {
-        let l_byte: u8 = self.read_primitive();
-        let len: u16 = if l_byte <= 128 {
-            l_byte as u16
+    pub fn read_bytes(&mut self) -> Result<&[u8], Error> {
+        let l_byte: u8 = self.read_sized()?;
+        let len: usize = if l_byte <= 128 {
+            l_byte as usize
         } else {
-            let s_byte: u8 = self.read_primitive();
-            (s_byte as u16) >> 7 + (l_byte as u16 - 128)
+            let s_byte: u8 = self.read_sized()?;
+            (s_byte as usize) >> 7 + (l_byte as usize - 128)
         };
-        unsafe {
-            let res = String::from_raw_parts(self.ptr, len as usize, len as usize);
-            self.ptr = self.ptr.offset(len as isize);
-            res
+        if len > self.bytes.len() {
+            return Err(Error::MemoryOutOfBounds)
+        }
+        let bytes = &self.bytes[..len];
+        self.bytes = &self.bytes[len..];
+        Ok(bytes)
+    }
+
+    pub fn read_string(&mut self) -> Result<String, Error> {
+        let bytes = self.read_bytes()?;
+        match String::from_utf8(bytes.to_vec()) {
+            Ok(s) => Ok(s),
+            Err(_) => Err(Error::Utf8Error),
         }
     }
 }

@@ -2,6 +2,7 @@ use core::alloc::{Layout, GlobalAlloc};
 
 type Opaque = u8;
 
+// If I put 0 here wasm generates to unreachable instruction for some reason
 pub const START_ADDRESS: *mut u16 = 2 as *mut u16;
 
 pub struct Allocator;

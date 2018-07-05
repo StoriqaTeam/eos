@@ -1,5 +1,6 @@
 use alloc::string::String;
 use eos::{Deserialize, Reader};
+use error::Error;
 
 #[repr(C)]
 pub struct ReviewAction {
@@ -9,11 +10,10 @@ pub struct ReviewAction {
 }
 
 impl Deserialize for ReviewAction {
-    type Error = ();
-    fn deserialize(mut d: Reader) -> Result<Self, Self::Error> {
-        let user: u64 = d.read_primitive();
-        let hash = d.read_string();
-        let mark: i32 = d.read_primitive();
+    fn deserialize(mut d: Reader) -> Result<Self, Error> {
+        let user: u64 = d.read_sized()?;
+        let hash = d.read_string()?;
+        let mark: i32 = d.read_sized()?;
         Ok(ReviewAction { user, hash, mark })
     }
 }

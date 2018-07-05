@@ -9,7 +9,9 @@ cd build && sudo make install
 ## Build wasm tooling
 ```
 git clone --recursive https://github.com/WebAssembly/wabt
-cd wabt && make && sudo make install
+cd wabt && make && sudo make install && cd ..
+git clone git@github.com:WebAssembly/binaryen.git
+cd binaryen && cmake . && make && sudo make install && cd ..
 rustup update
 cargo default nightly
 cargo install wasm-gc
@@ -47,5 +49,5 @@ cleos create account eosio <username> <owner_public_key> <active_public_key>
 
 
 ## Execute contract action
-`cleos push action hello.code hi '["some.user", "sha256", 1]' -p hello.code`
+`cleos push action hello.code review '["some.user", "sha256", 1]' -p hello.code`
 
