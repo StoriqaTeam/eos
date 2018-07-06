@@ -62,6 +62,15 @@ fn review(receiver: u64, user: u64, hash: String, mark: i32) {
 fn read(receiver: u64, user: u64) {
     eos::print_str("Received action `read` for a user: ");
     eos::print_name(user);
+    eos::print_str(" ");
+    let bytes = eos::read_bytes(receiver, receiver, TABLE_NAME, user);
+    match String::from_utf8(bytes) {
+        Ok(msg) => {
+            eos::print_str("Deserialized message: ");
+            eos::print_str(&msg);
+        }
+        Err(e) => eos::print_str("Error deserializing bytes"),
+    };
 }
 
 /// This function is called on panic.
