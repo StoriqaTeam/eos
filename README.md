@@ -50,5 +50,5 @@ cleos create account eosio <username> <owner_public_key> <active_public_key>
 
 ## Execute contract action
 `cleos push action hello.code review '["some.user", "sha256", 1]' -p hello.code`
-`cleos push action hello.code review '["some.user"]' -p hello.code`
+`cleos push action hello.code read '["some.user"]' -p hello.code`
 
