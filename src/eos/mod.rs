@@ -1,6 +1,7 @@
 mod deserialize;
 
 pub use self::deserialize::{Deserialize, Reader};
+use alloc::vec::Vec;
 use core::alloc::{GlobalAlloc, Layout};
 use error::Error;
 use ALLOC;
@@ -13,8 +14,37 @@ extern "C" {
     fn prints_l(bytes: *const u8, len: i32);
     fn printn(name: u64);
 
-    pub fn action_data_size() -> u32;
+    fn action_data_size() -> u32;
     fn read_action_data(bytes: *mut Opaque, len: u32) -> u32;
+
+    fn db_store_i64(
+        scope: u64,
+        table: u64,
+        payer: u64,
+        id: u64,
+        data: *const Opaque,
+        len: u32,
+    ) -> i32;
+    fn db_get_i64(iterator: i32, data: *mut Opaque, len: u32) -> i32;
+    fn db_find_i64(code: u64, scope: u64, table: u64, id: u64) -> i32;
+}
+
+pub fn store_bytes(scope: u64, table: u64, payer: u64, id: u64, data: &[u8]) {
+    let ptr = data.as_ptr();
+    let len = data.len();
+    unsafe {
+        db_store_i64(scope, table, payer, id, ptr, len as u32);
+    }
+}
+
+pub fn read_bytes(table_owner: u64, scope: u64, table: u64, id: u64) -> Vec<u8> {
+    unsafe {
+        let len = 256;
+        let iter = db_find_i64(table_owner, scope, table, id);
+        let mut res: Vec<u8> = Vec::with_capacity(len);
+        db_get_i64(iter, res.as_mut_slice().as_mut_ptr(), len as u32);
+        res
+    }
 }
 
 pub fn read_action<T: Deserialize>() -> Result<T, Error> {

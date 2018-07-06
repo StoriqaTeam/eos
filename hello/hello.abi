@@ -20,10 +20,25 @@
         }
 
       ]
+    },
+    {
+      "name": "read",
+      "base": "",
+      "fields": [
+        {
+          "name": "user",
+          "type": "name"
+        }
+      ]
     }],
   "actions": [{
     "name": "review",
     "type": "review",
+    "ricardian_contract": ""
+  },
+  {
+    "name": "read",
+    "type": "read",
     "ricardian_contract": ""
   }],
   "tables": [],

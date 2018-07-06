@@ -17,3 +17,15 @@ impl Deserialize for ReviewAction {
         Ok(ReviewAction { user, hash, mark })
     }
 }
+
+#[repr(C)]
+pub struct ReadReviewAction {
+    pub user: u64,
+}
+
+impl Deserialize for ReadReviewAction {
+    fn deserialize(mut d: Reader) -> Result<Self, Error> {
+        let user: u64 = d.read_sized()?;
+        Ok(ReadReviewAction { user })
+    }
+}

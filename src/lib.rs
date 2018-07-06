@@ -11,8 +11,8 @@ extern crate alloc;
 
 mod allocator;
 mod eos;
-mod models;
 mod error;
+mod models;
 
 use alloc::string::String;
 use core::intrinsics::abort;
@@ -32,22 +32,36 @@ pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
     allocator::Allocator::init();
     if action == eos::str_to_name("review") {
         if let Ok(ReviewAction { user, hash, mark }) = eos::read_action::<ReviewAction>() {
-            review(user, hash, mark);
+            review(receiver, user, hash, mark);
         } else {
             eos::print_str("Failed to deserialize data for `review` action");
+        }
+    } else if action == eos::str_to_name("read") {
+        if let Ok(ReadReviewAction { user }) = eos::read_action::<ReadReviewAction>() {
+            read(receiver, user);
+        } else {
+            eos::print_str("Failed to deserialize data for `read` action");
         }
     } else {
         eos::print_str("No such action");
     }
 }
 
-fn review(user: u64, hash: String, mark: i32) {
-    eos::print_str("Received action review for user: ");
+const TABLE_NAME: u64 = 1;
+
+fn review(receiver: u64, user: u64, hash: String, mark: i32) {
+    eos::print_str("Received action `review` for user: ");
     eos::print_name(user);
     eos::print_str(" hash: ");
     eos::print_str(&hash);
     eos::print_str(" mark: ");
     eos::print_i64(mark as i64);
+    eos::store_bytes(receiver, TABLE_NAME, receiver, user, hash.as_bytes())
+}
+
+fn read(receiver: u64, user: u64) {
+    eos::print_str("Received action `read` for a user: ");
+    eos::print_name(user);
 }
 
 /// This function is called on panic.
