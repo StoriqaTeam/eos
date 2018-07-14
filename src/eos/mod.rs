@@ -5,6 +5,7 @@ use alloc::vec::Vec;
 use core::alloc::{GlobalAlloc, Layout};
 use error::Error;
 use ALLOC;
+use core::mem::transmute;
 
 type Opaque = u8;
 
@@ -30,16 +31,53 @@ extern "C" {
 }
 
 pub fn store_bytes(scope: u64, table: u64, payer: u64, id: u64, data: &[u8]) {
-    let ptr = data.as_ptr();
+    // let ptr = data.as_ptr();
     let len = data.len();
-    unsafe {
-        db_store_i64(scope, table, payer, id, ptr, len as u32);
-    }
+    let bytes: [u8; 8] = unsafe { transmute(id.to_be()) };
+    let mut d: Vec<u8> = Vec::with_capacity(8 + len);
+    d.extend(bytes.into_iter());
+    d.extend(data);
+    print_str(" ");
+    print_u64(d[0] as u64);
+    print_str(" ");
+    print_u64(d[1] as u64);
+    print_str(" ");
+    print_u64(d[2] as u64);
+    print_str(" ");
+    print_u64(d[3] as u64);
+    print_str(" ");
+    print_u64(d[4] as u64);
+    print_str(" ");
+    print_u64(d[5] as u64);
+    print_str(" ");
+    print_u64(d[6] as u64);
+    print_str(" ");
+    print_u64(d[7] as u64);
+    print_str(" ");
+    print_u64(d[8] as u64);
+    print_str(" ");
+    print_u64(d[9] as u64);
+    print_str(" ");
+    let ptr = d.as_ptr();
+    let iter = unsafe {
+        db_store_i64(scope, table, payer, id, ptr, len as u32)
+    };
+    print_str("Iter: ");
+    print_i64(iter as i64);
 }
 
 pub fn read_bytes(table_owner: u64, scope: u64, table: u64, id: u64) -> Vec<u8> {
     unsafe {
         let len = 256;
+        print_str(" Params: ");
+        print_str(" table_owner: ");
+        print_name(table_owner);
+        print_str(" scope: ");
+        print_name(scope);
+        print_str(" table: ");
+        print_name(table);
+        print_str(" id: ");
+        print_name(id);
         let iter = db_find_i64(table_owner, scope, table, id);
         let mut res: Vec<u8> = Vec::with_capacity(len);
         db_get_i64(iter, res.as_mut_slice().as_mut_ptr(), len as u32);

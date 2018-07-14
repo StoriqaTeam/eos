@@ -52,6 +52,9 @@ const TABLE_NAME: u64 = 1;
 fn review(receiver: u64, user: u64, hash: String, mark: i32) {
     eos::print_str("Received action `review` for user: ");
     eos::print_name(user);
+    eos::print_str("with number: ");
+    eos::print_u64(user);
+
     eos::print_str(" hash: ");
     eos::print_str(&hash);
     eos::print_str(" mark: ");

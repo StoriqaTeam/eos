@@ -41,7 +41,13 @@
     "type": "read",
     "ricardian_contract": ""
   }],
-  "tables": [],
+  "tables": [{
+    "name": "............1",
+    "type": "uint64",
+    "index_type": "i64",
+    "key_names" : [],
+    "key_types" : []
+  }],
   "ricardian_clauses": [],
   "error_messages": [],
   "abi_extensions": []
