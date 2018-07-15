@@ -29,6 +29,32 @@
       ]
     },
     {
+      "name": "review.upd",
+      "base": "",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int64"
+        },
+        {
+          "name": "byte1",
+          "type": "int64"
+        },
+        {
+          "name": "byte2",
+          "type": "int64"
+        },
+        {
+          "name": "byte3",
+          "type": "int64"
+        },
+        {
+          "name": "byte4",
+          "type": "int64"
+        }
+      ]
+    },
+    {
       "name": "review.read",
       "base": "",
       "fields": [
@@ -41,6 +67,11 @@
   "actions": [{
     "name": "review.add",
     "type": "review.add",
+    "ricardian_contract": ""
+  },
+  {
+    "name": "review.upd",
+    "type": "review.upd",
     "ricardian_contract": ""
   },
   {

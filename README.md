@@ -49,6 +49,15 @@ cleos create account eosio <username> <owner_public_key> <active_public_key>
 
 
 ## Execute contract action
-`cl push action hello.code review.add '[10, 1, 2, 3, 4]' -p hello.code`
-`cl push action hello.code review.read '[10]' -p hello.code`
+Add review hash:
+
+`cleos push action hello.code review.add '[10, 1, 2, 3, 4]' -p hello.code`
+
+Read review hash:
+
+`cleos push action hello.code review.read '[10]' -p hello.code`
+
+Update review hash:
+
+`cleos push action hello.code review.upd '[10, 1, 2, 3, 40]' -p hello.code`
 

@@ -30,6 +30,10 @@ pub extern "C" fn init() {
 #[no_mangle]
 pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
     allocator::Allocator::init();
+    // eos::print_u64(action);
+    // eos::print_str("\n");
+    // eos::print_u64(eos::str_to_name("review.upd"));
+    // eos::print_str("\n");
     if action == eos::str_to_name("review.add") {
         if let Ok(review) = eos::read_action::<Review>() {
             review_add(receiver, review);
@@ -42,6 +46,12 @@ pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
         } else {
             eos::print_str("Failed to deserialize data for `review.read` action\n");
         }
+    } else if action == eos::str_to_name("review.upd") {
+        if let Ok(review) = eos::read_action::<Review>() {
+            review_update(receiver, review);
+        } else {
+            eos::print_str("Failed to deserialize data for `review.upd` action\n");
+        }
     } else {
         eos::print_str("No such action\n");
     }
@@ -50,14 +60,22 @@ pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
 const TABLE_NAME: u64 = 1;
 
 fn review_add(receiver: u64, review: Review) {
-    eos::print_str("Received action `review` for id: ");
+    eos::print_str("Received action `review.add` for id: ");
     eos::print_u64(review.id);
     eos::print_str("\n");
     eos::db_store(receiver, TABLE_NAME, receiver, review.id, &review);
 }
 
+fn review_update(receiver: u64, mut review: Review) {
+    eos::print_str("Received action `review.update` for id: ");
+    eos::print_u64(review.id);
+    eos::print_str("\n");
+    eos::db_update(receiver, receiver, receiver, TABLE_NAME, review.id, &mut review);
+}
+
+
 fn review_read(receiver: u64, id: u64) {
-    eos::print_str("Received action `read` for id: ");
+    eos::print_str("Received action `review.read` for id: ");
     eos::print_u64(id);
     eos::print_str("\n");
     if let Ok(review) = eos::db_read::<Review>(receiver, receiver, TABLE_NAME, id) {
