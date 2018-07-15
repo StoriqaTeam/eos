@@ -3,6 +3,7 @@ mod deserialize;
 pub use self::deserialize::{Deserialize, Reader};
 use alloc::vec::Vec;
 use core::alloc::{GlobalAlloc, Layout};
+use core::ptr::null_mut;
 use error::Error;
 use ALLOC;
 use core::mem::transmute;
@@ -60,7 +61,7 @@ pub fn store_bytes(scope: u64, table: u64, payer: u64, id: u64, data: &[u8]) {
     print_str(" ");
     let ptr = d.as_ptr();
     let iter = unsafe {
-        db_store_i64(scope, table, payer, id, ptr, len as u32)
+        db_store_i64(scope, table, payer, id, ptr, 8 + len as u32)
     };
     print_str("Iter: ");
     print_i64(iter as i64);
@@ -79,8 +80,35 @@ pub fn read_bytes(table_owner: u64, scope: u64, table: u64, id: u64) -> Vec<u8> 
         print_str(" id: ");
         print_name(id);
         let iter = db_find_i64(table_owner, scope, table, id);
-        let mut res: Vec<u8> = Vec::with_capacity(len);
-        db_get_i64(iter, res.as_mut_slice().as_mut_ptr(), len as u32);
+        print_str(" Iterator: ");
+        print_i64(iter as i64);
+        let size = db_get_i64(iter, null_mut(), 0);
+        print_str(" size: ");
+        print_i64(size as i64);
+        let mut res: Vec<u8> = Vec::with_capacity(size as usize);
+        res.set_len(size as usize);
+        db_get_i64(iter, res.as_mut_slice().as_mut_ptr(), size as u32);
+        print_str(" ");
+        print_u64(res[0] as u64);
+        print_str(" ");
+        print_u64(res[1] as u64);
+        print_str(" ");
+        print_u64(res[2] as u64);
+        print_str(" ");
+        print_u64(res[3] as u64);
+        print_str(" ");
+        print_u64(res[4] as u64);
+        print_str(" ");
+        print_u64(res[5] as u64);
+        print_str(" ");
+        print_u64(res[6] as u64);
+        print_str(" ");
+        print_u64(res[7] as u64);
+        print_str(" ");
+        print_u64(res[8] as u64);
+        print_str(" ");
+        print_u64(res[9] as u64);
+        print_str(" ");
         res
     }
 }
