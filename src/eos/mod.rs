@@ -31,84 +31,43 @@ extern "C" {
     fn db_find_i64(code: u64, scope: u64, table: u64, id: u64) -> i32;
 }
 
-pub fn store_bytes(scope: u64, table: u64, payer: u64, id: u64, data: &[u8]) {
-    // let ptr = data.as_ptr();
-    let len = data.len();
-    let bytes: [u8; 8] = unsafe { transmute(id.to_be()) };
-    let mut d: Vec<u8> = Vec::with_capacity(8 + len);
-    d.extend(bytes.into_iter());
-    d.extend(data);
-    print_str(" ");
-    print_u64(d[0] as u64);
-    print_str(" ");
-    print_u64(d[1] as u64);
-    print_str(" ");
-    print_u64(d[2] as u64);
-    print_str(" ");
-    print_u64(d[3] as u64);
-    print_str(" ");
-    print_u64(d[4] as u64);
-    print_str(" ");
-    print_u64(d[5] as u64);
-    print_str(" ");
-    print_u64(d[6] as u64);
-    print_str(" ");
-    print_u64(d[7] as u64);
-    print_str(" ");
-    print_u64(d[8] as u64);
-    print_str(" ");
-    print_u64(d[9] as u64);
-    print_str(" ");
-    let ptr = d.as_ptr();
-    let iter = unsafe {
-        db_store_i64(scope, table, payer, id, ptr, 8 + len as u32)
+pub fn db_store<T>(scope: u64, table: u64, payer: u64, id: u64, data: &T) {
+    unsafe {
+        db_store_i64(scope, table, payer, id, (data as *const T) as *const Opaque, ::core::mem::size_of::<T>() as u32)
     };
-    print_str("Iter: ");
-    print_i64(iter as i64);
 }
 
-pub fn read_bytes(table_owner: u64, scope: u64, table: u64, id: u64) -> Vec<u8> {
+
+pub fn db_store_bytes(scope: u64, table: u64, payer: u64, id: u64, data: &[u8]) {
+    let ptr = data.as_ptr();
+    let len = data.len();
     unsafe {
-        let len = 256;
-        print_str(" Params: ");
-        print_str(" table_owner: ");
-        print_name(table_owner);
-        print_str(" scope: ");
-        print_name(scope);
-        print_str(" table: ");
-        print_name(table);
-        print_str(" id: ");
-        print_name(id);
+        db_store_i64(scope, table, payer, id, ptr, len as u32)
+    };
+}
+
+pub fn db_read<T: Deserialize>(table_owner: u64, scope: u64, table: u64, id: u64) -> Result<T, Error> {
+    unsafe {
         let iter = db_find_i64(table_owner, scope, table, id);
-        print_str(" Iterator: ");
-        print_i64(iter as i64);
+        let size = ::core::mem::size_of::<T>();
+        let align = 1; // 1 byte
+        let layout = Layout::from_size_align(size, align).unwrap();
+        let ptr = ALLOC.alloc(layout);
+        let sz = db_get_i64(iter, ptr, size as u32);
+        let slice = ::core::slice::from_raw_parts(ptr, size);
+        let mut deserializer = Reader::new(slice);
+        <T as Deserialize>::deserialize(deserializer)
+    }
+}
+
+
+pub fn db_read_bytes(table_owner: u64, scope: u64, table: u64, id: u64) -> Vec<u8> {
+    unsafe {
+        let iter = db_find_i64(table_owner, scope, table, id);
         let size = db_get_i64(iter, null_mut(), 0);
-        print_str(" size: ");
-        print_i64(size as i64);
         let mut res: Vec<u8> = Vec::with_capacity(size as usize);
         res.set_len(size as usize);
         db_get_i64(iter, res.as_mut_slice().as_mut_ptr(), size as u32);
-        print_str(" ");
-        print_u64(res[0] as u64);
-        print_str(" ");
-        print_u64(res[1] as u64);
-        print_str(" ");
-        print_u64(res[2] as u64);
-        print_str(" ");
-        print_u64(res[3] as u64);
-        print_str(" ");
-        print_u64(res[4] as u64);
-        print_str(" ");
-        print_u64(res[5] as u64);
-        print_str(" ");
-        print_u64(res[6] as u64);
-        print_str(" ");
-        print_u64(res[7] as u64);
-        print_str(" ");
-        print_u64(res[8] as u64);
-        print_str(" ");
-        print_u64(res[9] as u64);
-        print_str(" ");
         res
     }
 }

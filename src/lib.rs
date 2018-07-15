@@ -24,56 +24,62 @@ pub static ALLOC: allocator::Allocator = allocator::Allocator;
 
 #[no_mangle]
 pub extern "C" fn init() {
-    eos::print_str("Yo - deployed");
+    eos::print_str("Deployed");
 }
 
 #[no_mangle]
 pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
     allocator::Allocator::init();
-    if action == eos::str_to_name("review") {
-        if let Ok(ReviewAction { user, hash, mark }) = eos::read_action::<ReviewAction>() {
-            review(receiver, user, hash, mark);
+    if action == eos::str_to_name("review.add") {
+        if let Ok(review) = eos::read_action::<Review>() {
+            review_add(receiver, review);
         } else {
-            eos::print_str("Failed to deserialize data for `review` action");
+            eos::print_str("Failed to deserialize data for `review.add` action\n");
         }
-    } else if action == eos::str_to_name("read") {
-        if let Ok(ReadReviewAction { user }) = eos::read_action::<ReadReviewAction>() {
-            read(receiver, user);
+    } else if action == eos::str_to_name("review.read") {
+        if let Ok(ReadReviewAction { id }) = eos::read_action::<ReadReviewAction>() {
+            review_read(receiver, id);
         } else {
-            eos::print_str("Failed to deserialize data for `read` action");
+            eos::print_str("Failed to deserialize data for `review.read` action\n");
         }
     } else {
-        eos::print_str("No such action");
+        eos::print_str("No such action\n");
     }
 }
 
 const TABLE_NAME: u64 = 1;
 
-fn review(receiver: u64, user: u64, hash: String, mark: i32) {
-    eos::print_str("Received action `review` for user: ");
-    eos::print_name(user);
-    eos::print_str("with number: ");
-    eos::print_u64(user);
-
-    eos::print_str(" hash: ");
-    eos::print_str(&hash);
-    eos::print_str(" mark: ");
-    eos::print_i64(mark as i64);
-    eos::store_bytes(receiver, TABLE_NAME, receiver, user, hash.as_bytes())
+fn review_add(receiver: u64, review: Review) {
+    eos::print_str("Received action `review` for id: ");
+    eos::print_u64(review.id);
+    eos::print_str("\n");
+    eos::db_store(receiver, TABLE_NAME, receiver, review.id, &review);
 }
 
-fn read(receiver: u64, user: u64) {
-    eos::print_str("Received action `read` for a user: ");
-    eos::print_name(user);
-    eos::print_str(" ");
-    let bytes = eos::read_bytes(receiver, receiver, TABLE_NAME, user);
-    match String::from_utf8(bytes) {
-        Ok(msg) => {
-            eos::print_str("Deserialized message: ");
-            eos::print_str(&msg);
-        }
-        Err(e) => eos::print_str("Error deserializing bytes"),
-    };
+fn review_read(receiver: u64, id: u64) {
+    eos::print_str("Received action `read` for id: ");
+    eos::print_u64(id);
+    eos::print_str("\n");
+    if let Ok(review) = eos::db_read::<Review>(receiver, receiver, TABLE_NAME, id) {
+        eos::print_str("Found review with id: ");
+        eos::print_u64(review.id);
+        eos::print_str("\n");
+        eos::print_str("byte1: ");
+        eos::print_u64(review.byte1);
+        eos::print_str("\n");
+        eos::print_str("byte2: ");
+        eos::print_u64(review.byte2);
+        eos::print_str("\n");
+        eos::print_str("byte3: ");
+        eos::print_u64(review.byte3);
+        eos::print_str("\n");
+        eos::print_str("byte4: ");
+        eos::print_u64(review.byte4);
+        eos::print_str("\n");
+    } else {
+        eos::print_str("Unable to read data from db\n");
+    }
+
 }
 
 /// This function is called on panic.

@@ -3,42 +3,49 @@
   "version": "eosio::abi/1.0",
   "types": [],
   "structs": [{
-      "name": "review",
+      "name": "review.add",
       "base": "",
       "fields": [
         {
-          "name": "user",
-          "type": "name"
+          "name": "id",
+          "type": "int64"
         },
         {
-          "name": "hash",
-          "type": "string"
-        }
+          "name": "byte1",
+          "type": "int64"
+        },
         {
-          "name": "mark",
-          "type": "int32"
+          "name": "byte2",
+          "type": "int64"
+        },
+        {
+          "name": "byte3",
+          "type": "int64"
+        },
+        {
+          "name": "byte4",
+          "type": "int64"
         }
-
       ]
     },
     {
-      "name": "read",
+      "name": "review.read",
       "base": "",
       "fields": [
         {
-          "name": "user",
-          "type": "name"
+          "name": "id",
+          "type": "int64"
         }
       ]
     }],
   "actions": [{
-    "name": "review",
-    "type": "review",
+    "name": "review.add",
+    "type": "review.add",
     "ricardian_contract": ""
   },
   {
-    "name": "read",
-    "type": "read",
+    "name": "review.read",
+    "type": "review.read",
     "ricardian_contract": ""
   }],
   "tables": [{
