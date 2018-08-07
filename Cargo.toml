@@ -1,7 +1,20 @@
 [package]
-name = "hello"
+name = "eos"
+
+# When releasing to crates.io:
+# - Update CHANGELOG.md.
+# - Create "v0.1.x" git tag.
+
 version = "0.1.0"
-authors = ["Алексей Карасев <karasev.alexey@gmail.com>"]
+authors = ["Alexey Karasev <karasev.alexey@gmail.com>, Sergey Efremov <s.efremov@storiqa.com>"]
+description = "Tools for writing EOS smart contracts in Rust"
+repository = "https://github.com/StoriqaTeam/eos.git"
+homepage = "https://github.com/StoriqaTeam/eos.git"
+documentation = "https://github.com/StoriqaTeam/eos.git"
+license = "MIT"
+readme = "README.md"
+categories = ["blockchain", "network-programming"]
+keywords = ["eos", "blockchain", "smart-contracts"]
 
 [lib]
 path = "src/lib.rs"
