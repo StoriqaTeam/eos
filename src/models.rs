@@ -17,7 +17,13 @@ impl Deserialize for Review {
         let byte2: u64 = d.read_sized()?;
         let byte3: u64 = d.read_sized()?;
         let byte4: u64 = d.read_sized()?;
-        Ok(Review { id, byte1, byte2, byte3, byte4 })
+        Ok(Review {
+            id,
+            byte1,
+            byte2,
+            byte3,
+            byte4,
+        })
     }
 }
 

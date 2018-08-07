@@ -1,3 +1,5 @@
+//! Module containing all bindings to EOS ABI
+mod action;
 mod deserialize;
 
 pub use self::deserialize::{Deserialize, Reader};
@@ -18,41 +20,45 @@ extern "C" {
     fn action_data_size() -> u32;
     fn read_action_data(bytes: *mut Opaque, len: u32) -> u32;
 
-    fn db_store_i64(
-        scope: u64,
-        table: u64,
-        payer: u64,
-        id: u64,
-        data: *const Opaque,
-        len: u32,
-    ) -> i32;
+    fn db_store_i64(scope: u64, table: u64, payer: u64, id: u64, data: *const Opaque, len: u32) -> i32;
     fn db_get_i64(iterator: i32, data: *mut Opaque, len: u32) -> i32;
     fn db_update_i64(iterator: i32, payer: u64, data: *mut Opaque, len: u32);
     fn db_find_i64(code: u64, scope: u64, table: u64, id: u64) -> i32;
 }
 
+/// Store object of type T in db
 pub fn db_store<T>(scope: u64, table: u64, payer: u64, id: u64, data: &T) {
     unsafe {
-        db_store_i64(scope, table, payer, id, (data as *const T) as *const Opaque, ::core::mem::size_of::<T>() as u32)
+        let raw_data: *const T = data;
+        db_store_i64(
+            scope,
+            table,
+            payer,
+            id,
+            raw_data as *const Opaque,
+            ::core::mem::size_of::<T>() as u32,
+        )
     };
 }
 
+/// Store bytes in db
 pub fn db_store_bytes(scope: u64, table: u64, payer: u64, id: u64, data: &[u8]) {
     let ptr = data.as_ptr();
     let len = data.len();
-    unsafe {
-        db_store_i64(scope, table, payer, id, ptr, len as u32)
-    };
+    unsafe { db_store_i64(scope, table, payer, id, ptr, len as u32) };
 }
 
+/// Update stored object in db
 pub fn db_update<T>(table_owner: u64, scope: u64, payer: u64, table: u64, id: u64, data: &mut T) {
     unsafe {
         let iter = db_find_i64(table_owner, scope, table, id);
-        db_update_i64(iter, payer, (data as *mut T) as *mut Opaque, ::core::mem::size_of::<T>() as u32);
+        let raw_data: *mut T = data;
+        db_update_i64(iter, payer, raw_data as *mut Opaque, ::core::mem::size_of::<T>() as u32);
     };
 }
 
-
+/// After we polish the basics with allocation and serialization,
+/// we need to figure out how to work with db indexes in EOS.
 pub fn db_read<T: Deserialize>(table_owner: u64, scope: u64, table: u64, id: u64) -> Result<T, Error> {
     unsafe {
         let iter = db_find_i64(table_owner, scope, table, id);
@@ -60,14 +66,14 @@ pub fn db_read<T: Deserialize>(table_owner: u64, scope: u64, table: u64, id: u64
         let align = 1; // 1 byte
         let layout = Layout::from_size_align(size, align).unwrap();
         let ptr = ALLOC.alloc(layout);
-        let sz = db_get_i64(iter, ptr, size as u32);
+        let _sz = db_get_i64(iter, ptr, size as u32);
         let slice = ::core::slice::from_raw_parts(ptr, size);
-        let mut deserializer = Reader::new(slice);
+        let deserializer = Reader::new(slice);
         <T as Deserialize>::deserialize(deserializer)
     }
 }
 
-
+/// Read raw bytes from db
 pub fn db_read_bytes(table_owner: u64, scope: u64, table: u64, id: u64) -> Vec<u8> {
     unsafe {
         let iter = db_find_i64(table_owner, scope, table, id);
@@ -79,6 +85,7 @@ pub fn db_read_bytes(table_owner: u64, scope: u64, table: u64, id: u64) -> Vec<u
     }
 }
 
+/// Read action
 pub fn read_action<T: Deserialize>() -> Result<T, Error> {
     unsafe {
         let size = action_data_size() as usize;
@@ -87,23 +94,26 @@ pub fn read_action<T: Deserialize>() -> Result<T, Error> {
         let ptr = ALLOC.alloc(layout);
         read_action_data(ptr, size as u32);
         let slice = ::core::slice::from_raw_parts(ptr, size);
-        let mut deserializer = Reader::new(slice);
+        let deserializer = Reader::new(slice);
         <T as Deserialize>::deserialize(deserializer)
     }
 }
 
+/// Print i64
 pub fn print_i64(i: i64) {
     unsafe {
         printi(i);
     }
 }
 
+/// Print u64
 pub fn print_u64(u: u64) {
     unsafe {
         printui(u);
     }
 }
 
+/// Print string
 pub fn print_str(s: &str) {
     unsafe {
         let bytes = s.as_bytes();
@@ -111,12 +121,14 @@ pub fn print_str(s: &str) {
     }
 }
 
+/// Print name
 pub fn print_name(name: u64) {
     unsafe {
         printn(name);
     }
 }
 
+/// Convert str to name
 pub fn str_to_name(s: &str) -> u64 {
     let mut res: u64 = 0;
     let mut bytes = s.bytes();

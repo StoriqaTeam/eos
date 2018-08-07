@@ -1,3 +1,31 @@
+//! EOS smart contract implementation.
+//!
+//! Rust implementation of smart contracts, provides a few major components:
+//!
+//! * Bindings to WASM functions.
+//! * Examples of smart contracts.
+//!
+//! Library uses unsafe FFI bindings and works currently only on nightly Rust.
+//!
+//! EOS developers documentation is found on the [website].
+//!
+//! [website]: https://developers.eos.io/eosio-cpp/reference.
+//!
+//! # Examples
+//!
+//! A simple smart contract:
+//!
+//! ```no_run
+//! extern crate eos;
+//!
+//! fn review_add(receiver: u64, review: Review) {
+//!     eos::print_str("Received action `review.add` for id: ");
+//!     eos::print_u64(review.id);
+//!     eos::print_str("\n");
+//!     eos::db_store(receiver, TABLE_NAME, receiver, review.id, &review);
+//! }
+//! ```
+
 #![feature(lang_items)]
 #![feature(panic_implementation)]
 #![feature(alloc)]
@@ -5,8 +33,18 @@
 #![feature(oom)]
 #![feature(core_intrinsics)]
 #![no_std]
+#![deny(
+    missing_docs,
+    warnings,
+    missing_debug_implementations,
+    missing_copy_implementations,
+    trivial_casts,
+    trivial_numeric_casts,
+    unused_import_braces,
+    unused_qualifications
+)]
 
-#[macro_use]
+//#[macro_use]
 extern crate alloc;
 
 mod allocator;
@@ -14,105 +52,33 @@ mod eos;
 mod error;
 mod models;
 
-use alloc::string::String;
+pub use allocator::*;
+pub use eos::*;
+
+use alloc::alloc::Layout;
 use core::intrinsics::abort;
 use core::panic::PanicInfo;
-use models::*;
 
+/// Custom EOS allocator
 #[global_allocator]
-pub static ALLOC: allocator::Allocator = allocator::Allocator;
+pub static ALLOC: Allocator = Allocator;
 
-#[no_mangle]
-pub extern "C" fn init() {
-    eos::print_str("Deployed");
-}
+/// This function is needed for global allocator.
+#[lang = "eh_personality"]
+extern "C" fn eh_personality() {}
 
-#[no_mangle]
-pub extern "C" fn apply(receiver: u64, code: u64, action: u64) {
-    allocator::Allocator::init();
-    // eos::print_u64(action);
-    // eos::print_str("\n");
-    // eos::print_u64(eos::str_to_name("review.upd"));
-    // eos::print_str("\n");
-    if action == eos::str_to_name("review.add") {
-        if let Ok(review) = eos::read_action::<Review>() {
-            review_add(receiver, review);
-        } else {
-            eos::print_str("Failed to deserialize data for `review.add` action\n");
-        }
-    } else if action == eos::str_to_name("review.read") {
-        if let Ok(ReadReviewAction { id }) = eos::read_action::<ReadReviewAction>() {
-            review_read(receiver, id);
-        } else {
-            eos::print_str("Failed to deserialize data for `review.read` action\n");
-        }
-    } else if action == eos::str_to_name("review.upd") {
-        if let Ok(review) = eos::read_action::<Review>() {
-            review_update(receiver, review);
-        } else {
-            eos::print_str("Failed to deserialize data for `review.upd` action\n");
-        }
-    } else {
-        eos::print_str("No such action\n");
-    }
-}
-
-const TABLE_NAME: u64 = 1;
-
-fn review_add(receiver: u64, review: Review) {
-    eos::print_str("Received action `review.add` for id: ");
-    eos::print_u64(review.id);
-    eos::print_str("\n");
-    eos::db_store(receiver, TABLE_NAME, receiver, review.id, &review);
-}
-
-fn review_update(receiver: u64, mut review: Review) {
-    eos::print_str("Received action `review.update` for id: ");
-    eos::print_u64(review.id);
-    eos::print_str("\n");
-    eos::db_update(receiver, receiver, receiver, TABLE_NAME, review.id, &mut review);
-}
-
-
-fn review_read(receiver: u64, id: u64) {
-    eos::print_str("Received action `review.read` for id: ");
-    eos::print_u64(id);
-    eos::print_str("\n");
-    if let Ok(review) = eos::db_read::<Review>(receiver, receiver, TABLE_NAME, id) {
-        eos::print_str("Found review with id: ");
-        eos::print_u64(review.id);
-        eos::print_str("\n");
-        eos::print_str("byte1: ");
-        eos::print_u64(review.byte1);
-        eos::print_str("\n");
-        eos::print_str("byte2: ");
-        eos::print_u64(review.byte2);
-        eos::print_str("\n");
-        eos::print_str("byte3: ");
-        eos::print_u64(review.byte3);
-        eos::print_str("\n");
-        eos::print_str("byte4: ");
-        eos::print_u64(review.byte4);
-        eos::print_str("\n");
-    } else {
-        eos::print_str("Unable to read data from db\n");
-    }
-
-}
-
-/// This function is called on panic.
+/// This function is needed for global allocator.
 #[panic_implementation]
 #[no_mangle]
-pub fn panic(info: &PanicInfo) -> ! {
-    eos::print_str("Wasm panicked!");
+pub fn panic(_info: &PanicInfo) -> ! {
+    print_str("Wasm panicked!");
     unsafe { abort() }
 }
 
-// Need to provide a tiny `oom` lang-item implementation for
-// `#![no_std]`.
+/// This function is needed for global allocator.
 #[lang = "oom"]
 #[no_mangle]
-pub extern "C" fn oom() -> ! {
-    eos::print_str("Out of memory!");
+pub extern "C" fn oom(_: Layout) -> ! {
+    print_str("Out of memory!");
     unsafe { abort() }
 }
