@@ -48,12 +48,12 @@
 extern crate alloc;
 
 mod allocator;
-mod eos;
+pub mod eos;
 mod error;
 mod models;
 
 pub use allocator::*;
-pub use eos::*;
+pub use eos::console::*;
 
 use alloc::alloc::Layout;
 use core::intrinsics::abort;

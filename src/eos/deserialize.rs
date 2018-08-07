@@ -1,3 +1,4 @@
+//! Deserialization module
 use alloc::string::String;
 use error::Error;
 
