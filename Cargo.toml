@@ -34,3 +34,9 @@ cfg-if = "0.1.2"
 default = ["custom_allocator"]
 custom_allocator = []
 wee_allocator = []
+
+[workspace]
+
+members = [
+    "examples/review",
+]

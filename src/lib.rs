@@ -49,12 +49,6 @@ pub mod eos;
 mod error;
 mod models;
 
-use alloc::alloc::Layout;
-use core::intrinsics::abort;
-use core::panic::PanicInfo;
-
-use eos::console::*;
-
 cfg_if! {
     if #[cfg(feature = "custom_allocator")] {
         /// Custom EOS allocator
@@ -71,20 +65,29 @@ cfg_if! {
     }
 }
 
-/// This function is needed for global allocator with `#![no_std]`.
-#[lang = "eh_personality"]
-extern "C" fn eh_personality() {}
+cfg_if! {
+    if #[cfg(not(test))] {
+        use alloc::alloc::Layout;
+        use core::intrinsics::abort;
+        use core::panic::PanicInfo;
+        use eos::console::*;
 
-/// This function is needed for global allocator with `#![no_std]`.
-#[panic_implementation]
-pub fn panic(_info: &PanicInfo) -> ! {
-    print_str("Wasm panicked!");
-    unsafe { abort() }
-}
+        /// This function is needed for global allocator with `#![no_std]`.
+        #[lang = "eh_personality"]
+        extern "C" fn eh_personality() {}
 
-/// This function is needed for global allocator with `#![no_std]`.
-#[lang = "oom"]
-pub extern "C" fn oom(_: Layout) -> ! {
-    print_str("Out of memory!");
-    unsafe { abort() }
+        /// This function is needed for global allocator with `#![no_std]`.
+        #[panic_implementation]
+        pub fn panic(_info: &PanicInfo) -> ! {
+            print_str("Wasm panicked!");
+            unsafe { abort() }
+        }
+
+        /// This function is needed for global allocator with `#![no_std]`.
+        #[lang = "oom"]
+        pub extern "C" fn oom(_: Layout) -> ! {
+            print_str("Out of memory!");
+            unsafe { abort() }
+        }
+    }
 }

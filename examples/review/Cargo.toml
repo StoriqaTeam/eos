@@ -1,0 +1,7 @@
+[package]
+name = "review_test"
+version = "0.1.0"
+authors = ["Alexey Karasev <karasev.alexey@gmail.com>, Sergey Efremov <s.efremov@storiqa.com>"]
+
+[dependencies]
+eos = { path = "../../" }

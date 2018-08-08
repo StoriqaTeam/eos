@@ -3,14 +3,8 @@
 //! A simple smart contract implementaion that affords to create, read and update
 //! reviews hash on EOS blockchain
 //!
-//! You can test this out by running:
-//!
-//!     cargo run --example review
-//!
 
 #![deny(warnings)]
-
-extern crate alloc;
 extern crate eos;
 
 const TABLE_NAME: u64 = 1;

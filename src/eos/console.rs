@@ -78,3 +78,18 @@ pub fn name_to_str(name: u64) -> String {
         String::from_utf8_lossy(&slice).to_string()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn byte_to_base32_test() {
+        assert_eq!(byte_to_base32(0), 0);
+        assert_eq!(byte_to_base32(49), 1);
+        assert_eq!(byte_to_base32(54), 5);
+        assert_eq!(byte_to_base32(97), 6);
+        assert_eq!(byte_to_base32(122), 32);
+        assert_eq!(byte_to_base32(123), 0);
+    }
+}
