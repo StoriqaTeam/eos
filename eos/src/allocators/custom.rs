@@ -1,7 +1,7 @@
 use alloc::alloc::Layout;
 use core::alloc::GlobalAlloc;
 
-use eos::types::Opaque;
+use types::Opaque;
 
 /// Start address of memory for smart contract
 /// Strange behaviour: If put 0 here wasm generates unreachable instruction!

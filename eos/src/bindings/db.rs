@@ -3,9 +3,9 @@
 use alloc::vec::Vec;
 use core::alloc::{GlobalAlloc, Layout};
 use core::ptr::null_mut;
-use eos::deserialize::{Deserialize, Reader};
-use eos::types::Opaque;
+use deserialize::{Deserialize, Reader};
 use error::Error;
+use types::Opaque;
 use GLOBAL_ALLOCATOR;
 
 extern "C" {

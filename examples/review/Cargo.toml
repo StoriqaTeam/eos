@@ -4,4 +4,8 @@ version = "0.1.0"
 authors = ["Alexey Karasev <karasev.alexey@gmail.com>, Sergey Efremov <s.efremov@storiqa.com>"]
 
 [dependencies]
-eos = { path = "../../" }
+eos = { path = "../../eos" }
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["cdylib"]

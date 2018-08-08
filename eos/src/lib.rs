@@ -45,9 +45,10 @@ extern crate wee_alloc;
 extern crate cfg_if;
 
 mod allocators;
-pub mod eos;
-mod error;
-mod models;
+pub mod bindings;
+pub mod deserialize;
+pub mod error;
+pub mod types;
 
 cfg_if! {
     if #[cfg(feature = "custom_allocator")] {
@@ -70,7 +71,7 @@ cfg_if! {
         use alloc::alloc::Layout;
         use core::intrinsics::abort;
         use core::panic::PanicInfo;
-        use eos::console::*;
+        use bindings::console::*;
 
         /// This function is needed for global allocator with `#![no_std]`.
         #[lang = "eh_personality"]

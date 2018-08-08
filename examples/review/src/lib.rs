@@ -3,14 +3,50 @@
 //! A simple smart contract implementaion that affords to create, read and update
 //! reviews hash on EOS blockchain
 //!
-
 #![deny(warnings)]
+#![no_std]
+
 extern crate eos;
+
+mod models;
+
+use eos::bindings::action::*;
+use eos::bindings::console::*;
+use eos::bindings::db::*;
+
+use models::{ReadReviewAction, Review};
 
 const TABLE_NAME: u64 = 1;
 
-use eos::console::*;
-use eos::db::*;
+#[no_mangle]
+pub extern "C" fn init() {
+    print_str("Deployed");
+}
+
+#[no_mangle]
+pub extern "C" fn apply(receiver: u64, _code: u64, action: u64) {
+    if action == str_to_name("review.add") {
+        if let Ok(review) = read_action::<Review>() {
+            review_add(receiver, review);
+        } else {
+            print_str("Failed to deserialize data for `review.add` action\n");
+        }
+    } else if action == str_to_name("review.read") {
+        if let Ok(ReadReviewAction { id }) = read_action::<ReadReviewAction>() {
+            review_read(receiver, id);
+        } else {
+            print_str("Failed to deserialize data for `review.read` action\n");
+        }
+    } else if action == str_to_name("review.upd") {
+        if let Ok(review) = read_action::<Review>() {
+            review_update(receiver, review);
+        } else {
+            print_str("Failed to deserialize data for `review.upd` action\n");
+        }
+    } else {
+        print_str("No such action\n");
+    }
+}
 
 fn review_add(receiver: u64, review: Review) {
     print_str("Received action `review.add` for id: ");

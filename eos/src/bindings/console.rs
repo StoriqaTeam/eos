@@ -2,7 +2,7 @@
 use alloc::prelude::ToString;
 use alloc::string::String;
 
-use eos::types::Opaque;
+use types::Opaque;
 
 extern "C" {
     fn printi(c: i64);

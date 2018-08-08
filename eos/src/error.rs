@@ -1,3 +1,5 @@
+//! Error module.
+
 /// Custom library error.
 #[derive(Debug, Copy, Clone)]
 pub enum Error {
