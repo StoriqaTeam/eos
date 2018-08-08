@@ -5,7 +5,7 @@ use error::Error;
 
 use super::deserialize::{Deserialize, Reader};
 use eos::types::*;
-use ALLOC;
+use GLOBAL_ALLOCATOR;
 
 /// Defines API for querying action and sending action.
 ///  struct action {
@@ -70,7 +70,7 @@ pub fn read_action<T: Deserialize>() -> Result<T, Error> {
         let size = action_data_size() as usize;
         let align = 1; // 1 byte
         let layout = Layout::from_size_align(size, align).unwrap();
-        let ptr = ALLOC.alloc(layout);
+        let ptr = GLOBAL_ALLOCATOR.alloc(layout);
         read_action_data(ptr, size);
         let slice = ::core::slice::from_raw_parts(ptr, size);
         let deserializer = Reader::new(slice);

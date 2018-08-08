@@ -1,4 +1,8 @@
 //! Defnes API to log/print text messages.
+use alloc::prelude::ToString;
+use alloc::string::String;
+
+use eos::types::Opaque;
 
 extern "C" {
     fn printi(c: i64);
@@ -36,7 +40,7 @@ pub fn print_name(name: u64) {
     }
 }
 
-/// Convert str to name
+/// Convert str to u64
 pub fn str_to_name(s: &str) -> u64 {
     let mut res: u64 = 0;
     let mut bytes = s.bytes();
@@ -62,5 +66,15 @@ fn byte_to_base32(b: u8) -> u8 {
         97...122 => b - 97 + 6,
         49...54 => b - 49 + 1,
         _ => 0,
+    }
+}
+
+/// Convert str to u64
+pub fn name_to_str(name: u64) -> String {
+    unsafe {
+        let raw_ptr = name as *const Opaque;
+        let size: usize = 8;
+        let slice = ::core::slice::from_raw_parts(raw_ptr, size);
+        String::from_utf8_lossy(&slice).to_string()
     }
 }

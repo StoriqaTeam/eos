@@ -6,7 +6,7 @@ use core::ptr::null_mut;
 use eos::deserialize::{Deserialize, Reader};
 use eos::types::Opaque;
 use error::Error;
-use ALLOC;
+use GLOBAL_ALLOCATOR;
 
 extern "C" {
     fn db_store_i64(scope: u64, table: u64, payer: u64, id: u64, data: *const Opaque, len: u32) -> i32;
@@ -54,7 +54,7 @@ pub fn db_read<T: Deserialize>(table_owner: u64, scope: u64, table: u64, id: u64
         let size = ::core::mem::size_of::<T>();
         let align = 1; // 1 byte
         let layout = Layout::from_size_align(size, align).unwrap();
-        let ptr = ALLOC.alloc(layout);
+        let ptr = GLOBAL_ALLOCATOR.alloc(layout);
         let _sz = db_get_i64(iter, ptr, size as u32);
         let slice = ::core::slice::from_raw_parts(ptr, size);
         let deserializer = Reader::new(slice);

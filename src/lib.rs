@@ -26,13 +26,8 @@
 //! }
 //! ```
 
-#![feature(lang_items)]
-#![feature(panic_implementation)]
-#![feature(alloc)]
-#![feature(global_alloc)]
-#![feature(oom)]
-#![feature(core_intrinsics)]
 #![no_std]
+#![feature(alloc, global_alloc, core_intrinsics, oom, panic_implementation, lang_items)]
 #![deny(
     missing_docs,
     warnings,
@@ -44,40 +39,51 @@
     unused_qualifications
 )]
 
-//#[macro_use]
 extern crate alloc;
+extern crate wee_alloc;
+#[macro_use]
+extern crate cfg_if;
 
-mod allocator;
+mod allocators;
 pub mod eos;
 mod error;
 mod models;
-
-pub use allocator::*;
-pub use eos::console::*;
 
 use alloc::alloc::Layout;
 use core::intrinsics::abort;
 use core::panic::PanicInfo;
 
-/// Custom EOS allocator
-#[global_allocator]
-pub static ALLOC: Allocator = Allocator;
+use eos::console::*;
 
-/// This function is needed for global allocator.
+cfg_if! {
+    if #[cfg(feature = "custom_allocator")] {
+        /// Custom EOS allocator
+        #[global_allocator]
+        pub static GLOBAL_ALLOCATOR: allocators::custom::Allocator = allocators::custom::Allocator;
+    } else if #[cfg(feature = "wee_allocator")] {
+        /// Wee allocator
+        #[global_allocator]
+        pub static GLOBAL_ALLOCATOR: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+    } else {
+        compile_error! {
+            "There is no alloc specified!"
+        }
+    }
+}
+
+/// This function is needed for global allocator with `#![no_std]`.
 #[lang = "eh_personality"]
 extern "C" fn eh_personality() {}
 
-/// This function is needed for global allocator.
+/// This function is needed for global allocator with `#![no_std]`.
 #[panic_implementation]
-#[no_mangle]
 pub fn panic(_info: &PanicInfo) -> ! {
     print_str("Wasm panicked!");
     unsafe { abort() }
 }
 
-/// This function is needed for global allocator.
+/// This function is needed for global allocator with `#![no_std]`.
 #[lang = "oom"]
-#[no_mangle]
 pub extern "C" fn oom(_: Layout) -> ! {
     print_str("Out of memory!");
     unsafe { abort() }
