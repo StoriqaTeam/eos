@@ -27,3 +27,16 @@ opt-level = 's'
 panic = 'abort'
 
 [dependencies]
+wee_alloc = "0.4.2"
+cfg-if = "0.1.2"
+
+[features]
+default = ["custom_allocator"]
+custom_allocator = []
+wee_allocator = []
+
+[workspace]
+
+members = [
+    "examples/review",
+]

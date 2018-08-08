@@ -1,4 +1,4 @@
-use eos::{Deserialize, Reader};
+use eos::deserialize::{Deserialize, Reader};
 use error::Error;
 
 #[repr(C)]
