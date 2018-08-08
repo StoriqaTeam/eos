@@ -17,7 +17,7 @@ use GLOBAL_ALLOCATOR;
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct Action {
-    scope: ScopeName,                    // the contract defining the primary code to execute for code/type
+    scope: AccountName,                  // the contract defining the primary code to execute for code/type
     name: ActionName,                    // the action to be taken
     authorization: Vec<PermissionLevel>, // the accounts and permission levels provided
     data: *const Opaque,                 // opaque data processed by code
@@ -45,23 +45,23 @@ extern "C" {
     /// Get the length of current action's data field.
     fn action_data_size() -> u32;
     /// Verifies that name has auth.
-    fn has_auth(name: AccountName) -> bool;
+    fn has_auth(name: u64) -> bool;
     /// Verify specified account exists in the set of provided auths.
-    fn require_auth(name: AccountName);
+    fn require_auth(name: u64);
     /// Verify specified account exists in the set of provided auths.
-    fn require_auth2(name: AccountName, permission: PermissionName);
+    fn require_auth2(name: u64, permission: u64);
     /// Send an inline action in the context of this action's parent transaction.
     fn send_inline(serialized_action: *const Opaque, size: usize);
     /// Send an inline context free action in the context of this action's parent transaction.
     fn send_context_free_inline(serialized_action: *const Opaque, size: usize);
     /// Verifies that name exists in the set of write locks held.
-    fn require_write_lock(name: AccountName);
+    fn require_write_lock(name: u64);
     /// Verifies that name exists in the set of read locks held.
-    fn require_read_lock(name: AccountName);
+    fn require_read_lock(name: u64);
     /// Get the publication time.
     fn publication_time() -> u64;
     /// Get the current receiver of the action.
-    fn current_receiver() -> AccountName;
+    fn current_receiver() -> u64;
 }
 
 /// Read action
@@ -85,16 +85,16 @@ pub fn action_data_length() -> u32 {
 
 /// Verifies that name has auth.
 pub fn account_has_auth(name: AccountName) -> bool {
-    unsafe { has_auth(name) }
+    unsafe { has_auth(name.0) }
 }
 
 /// Verify specified account exists in the set of provided auths.
 pub fn account_require_auth(name: AccountName) {
-    unsafe { require_auth(name) }
+    unsafe { require_auth(name.0) }
 }
 /// Verify specified account exists in the set of provided auths.
 pub fn account_require_auth2(name: AccountName, permission: PermissionName) {
-    unsafe { require_auth2(name, permission) }
+    unsafe { require_auth2(name.0, permission.0) }
 }
 /// Send an inline action in the context of this action's parent transaction.
 pub fn action_send_inline(actions: &[Action]) {
@@ -106,11 +106,11 @@ pub fn action_send_context_free_inline(actions: &[Action]) {
 }
 /// Verifies that name exists in the set of write locks held.
 pub fn verify_write_lock_exists(name: AccountName) {
-    unsafe { require_write_lock(name) }
+    unsafe { require_write_lock(name.0) }
 }
 /// Verifies that name exists in the set of read locks held.
 pub fn verify_read_lock_exists(name: AccountName) {
-    unsafe { require_read_lock(name) }
+    unsafe { require_read_lock(name.0) }
 }
 /// Get the publication time.
 pub fn publication_time_mcs() -> u64 {
@@ -118,5 +118,5 @@ pub fn publication_time_mcs() -> u64 {
 }
 /// Get the current receiver of the action.
 pub fn action_current_receiver() -> AccountName {
-    unsafe { current_receiver() }
+    unsafe { AccountName(current_receiver()) }
 }
