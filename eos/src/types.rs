@@ -47,3 +47,18 @@ impl fmt::Debug for CheckSum512 {
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct TableRowIterator(pub i32);
+
+/// Primary table key
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct PrimaryKey(pub u64);
+
+/// Secondary table key u64
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct SecondaryKeyU64(pub u64);
+
+/// Secondary table key f64
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct SecondaryKeyF64(pub f64);
