@@ -8,6 +8,10 @@ pub type Opaque = u8;
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AccountName(pub u64);
+/// typedef uint64_t table_name
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct TableName(pub u64);
 /// typedef uint64_t permission_name
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -38,3 +42,8 @@ impl fmt::Debug for CheckSum512 {
         fmt::Debug::fmt(&&self.0[..], f)
     }
 }
+
+/// Iterator points to an existing table row in the table
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct TableRowIterator(pub i32);
