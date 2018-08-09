@@ -36,29 +36,33 @@ pub extern "C" fn init() {
 /// Do some stuff with review smart contract
 #[no_mangle]
 pub extern "C" fn apply(receiver: u64, _code: u64, action: u64) {
-    match name_to_str(action).as_ref() {
-        "review.add" => {
-            if let Ok(review) = read_action::<Review>() {
-                review_add(receiver, review);
-            } else {
-                print_str("Failed to deserialize data for `review.add` action\n");
+    if let Ok(action) = name_to_str(action) {
+        match action.as_ref() {
+            "review.add" => {
+                if let Ok(review) = read_action::<Review>() {
+                    review_add(receiver, review);
+                } else {
+                    print_str("Failed to deserialize data for `review.add` action\n");
+                }
             }
-        }
-        "review.read" => {
-            if let Ok(ReadReviewAction { id }) = read_action::<ReadReviewAction>() {
-                review_read(receiver, id);
-            } else {
-                print_str("Failed to deserialize data for `review.read` action\n");
+            "review.read" => {
+                if let Ok(ReadReviewAction { id }) = read_action::<ReadReviewAction>() {
+                    review_read(receiver, id);
+                } else {
+                    print_str("Failed to deserialize data for `review.read` action\n");
+                }
             }
-        }
-        "review.upd" => {
-            if let Ok(review) = read_action::<Review>() {
-                review_update(receiver, review);
-            } else {
-                print_str("Failed to deserialize data for `review.upd` action\n");
+            "review.upd" => {
+                if let Ok(review) = read_action::<Review>() {
+                    review_update(receiver, review);
+                } else {
+                    print_str("Failed to deserialize data for `review.upd` action\n");
+                }
             }
+            _ => print_str("No such action\n"),
         }
-        _ => print_str("No such action\n"),
+    } else {
+        print_str("Can not convert action to str\n")
     }
 }
 

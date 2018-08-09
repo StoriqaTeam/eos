@@ -1,6 +1,7 @@
 //! Defnes API to log/print text messages.
-use alloc::prelude::ToString;
 use alloc::string::String;
+
+use error::Error;
 
 extern "C" {
     // Prints string
@@ -144,16 +145,19 @@ fn base32_to_byte(b: u8) -> u8 {
 }
 
 /// Convert base_32 to str
-pub fn name_to_str(name: u64) -> String {
+pub fn name_to_str(name: u64) -> Result<String, Error> {
     let mut slice = [0; 12];
-     for i in 0..12 {
+    for i in 0..12 {
         let mut mask : u64 = 0b0001_1111 << 5 * i;
         let mut b = name & mask;
         b >>= 5 * i;
         let s = base32_to_byte(b as u8);
         slice[i] = s;
     }
-    String::from_utf8_lossy(&slice).to_string()
+    match String::from_utf8(slice.to_vec()) {
+        Ok(s) => Ok(s),
+        Err(_) => Err(Error::Utf8Error),
+    }
 }
 
 /// Print string with given length
