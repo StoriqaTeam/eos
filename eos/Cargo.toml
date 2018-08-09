@@ -22,9 +22,9 @@ crate-type = ["rlib", "cdylib"]
 
 [dependencies]
 cfg-if = "0.1.2"
-wee_alloc = "0.4.2"
+wee_alloc = { version = "0.4.2", optional = true}
 
 [features]
 default = ["custom_allocator"]
 custom_allocator = []
-wee_allocator = []
+wee_allocator = ["wee_alloc"]

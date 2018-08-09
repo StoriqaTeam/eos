@@ -40,7 +40,6 @@
 )]
 
 extern crate alloc;
-extern crate wee_alloc;
 #[macro_use]
 extern crate cfg_if;
 
@@ -56,6 +55,7 @@ cfg_if! {
         #[global_allocator]
         pub static GLOBAL_ALLOCATOR: allocators::custom::Allocator = allocators::custom::Allocator;
     } else if #[cfg(feature = "wee_allocator")] {
+        extern crate wee_alloc;
         /// Wee allocator
         #[global_allocator]
         pub static GLOBAL_ALLOCATOR: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
