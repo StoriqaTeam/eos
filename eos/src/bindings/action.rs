@@ -3,8 +3,8 @@ use alloc::vec::Vec;
 use core::alloc::{GlobalAlloc, Layout};
 use error::Error;
 
-use super::deserialize::{Deserialize, Reader};
-use eos::types::*;
+use deserialize::{Deserialize, Reader};
+use types::*;
 use GLOBAL_ALLOCATOR;
 
 /// Defines API for querying action and sending action.

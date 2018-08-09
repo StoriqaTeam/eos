@@ -1,5 +1,5 @@
 use eos::deserialize::{Deserialize, Reader};
-use error::Error;
+use eos::error::Error;
 
 #[repr(C)]
 pub struct Review {

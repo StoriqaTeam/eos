@@ -1,5 +1,5 @@
 //! Defines API for querying internal chain state
-use eos::types::*;
+use types::*;
 
 extern "C" {
     /// Gets the set of active producers.
