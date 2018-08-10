@@ -11,7 +11,7 @@ pub trait Deserialize: Sized {
     fn deserialize(d: Reader) -> Result<Self, Error>;
 }
 
-/// Custom memmory Reader
+/// Custom memory Reader
 #[derive(Debug, Copy, Clone)]
 pub struct Reader<'a> {
     bytes: &'a [u8],
@@ -23,7 +23,7 @@ impl<'a> Reader<'a> {
         Reader { bytes }
     }
 
-    /// Read object from memmory
+    /// Read object from memory
     pub fn read_sized<T>(&mut self) -> Result<T, Error> {
         let size = ::core::mem::size_of::<T>();
         if size > self.bytes.len() {
@@ -34,7 +34,7 @@ impl<'a> Reader<'a> {
         unsafe { Ok(ptr.read()) }
     }
 
-    /// Read bytes from memmory
+    /// Read bytes from memory
     pub fn read_bytes(&mut self) -> Result<&[u8], Error> {
         let l_byte: u8 = self.read_sized()?;
         let len: usize = if l_byte <= 128 {
@@ -51,7 +51,7 @@ impl<'a> Reader<'a> {
         Ok(bytes)
     }
 
-    /// Read string from memmory
+    /// Read string from memory
     pub fn read_string(&mut self) -> Result<String, Error> {
         let bytes = self.read_bytes()?;
         match String::from_utf8(bytes.to_vec()) {
