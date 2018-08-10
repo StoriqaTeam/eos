@@ -22,6 +22,8 @@ crate-type = ["rlib", "cdylib"]
 
 [dependencies]
 cfg-if = "0.1.2"
+derive-new = "0.5.5"
+new_type_deref_derive = {  path = "../new_type_deref_derive" }
 wee_alloc = { version = "0.4.2", optional = true}
 
 [features]

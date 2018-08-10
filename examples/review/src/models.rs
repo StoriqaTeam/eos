@@ -19,7 +19,7 @@ impl Deserialize for Review {
         let byte3: u64 = d.read_sized()?;
         let byte4: u64 = d.read_sized()?;
         Ok(Review {
-            id: PrimaryKey(id),
+            id: PrimaryKey::new(id),
             byte1,
             byte2,
             byte3,
@@ -36,6 +36,6 @@ pub struct ReadReviewAction {
 impl Deserialize for ReadReviewAction {
     fn deserialize(mut d: Reader) -> Result<Self, Error> {
         let id: u64 = d.read_sized()?;
-        Ok(ReadReviewAction { id: PrimaryKey(id) })
+        Ok(ReadReviewAction { id: PrimaryKey::new(id) })
     }
 }

@@ -157,14 +157,14 @@ pub fn db_store<T>(scope: AccountName, table: TableName, payer: AccountName, id:
     unsafe {
         let raw_data: *const T = data;
         let iter = db_store_i64(
-            scope.0,
-            table.0,
-            payer.0,
-            id.0,
+            *scope,
+            *table,
+            *payer,
+            *id,
             raw_data as *const Opaque,
             ::core::mem::size_of::<T>() as u32,
         );
-        TableRowIterator(iter)
+        TableRowIterator::new(iter)
     }
 }
 /// Store bytes in db
@@ -172,48 +172,48 @@ pub fn db_store_bytes(scope: AccountName, table: TableName, payer: AccountName, 
     let ptr = data.as_ptr();
     let len = data.len();
     unsafe {
-        let iter = db_store_i64(scope.0, table.0, payer.0, id.0, ptr, len as u32);
-        TableRowIterator(iter)
+        let iter = db_store_i64(*scope, *table, *payer, *id, ptr, len as u32);
+        TableRowIterator::new(iter)
     }
 }
 /// Update stored object in db
 pub fn db_update<T>(table_owner: AccountName, scope: AccountName, payer: AccountName, table: TableName, id: PrimaryKey, data: &mut T) {
     unsafe {
-        let iter = db_find_i64(table_owner.0, scope.0, table.0, id.0);
+        let iter = db_find_i64(*table_owner, *scope, *table, *id);
         let raw_data: *mut T = data;
-        db_update_i64(iter, payer.0, raw_data as *mut Opaque, ::core::mem::size_of::<T>() as u32);
+        db_update_i64(iter, *payer, raw_data as *mut Opaque, ::core::mem::size_of::<T>() as u32);
     };
 }
 /// Remove a record from a primary 64-bit integer index table
 pub fn db_remove(table_owner: AccountName, scope: AccountName, table: TableName, id: PrimaryKey) {
     unsafe {
-        let iter = db_find_i64(table_owner.0, scope.0, table.0, id.0);
+        let iter = db_find_i64(*table_owner, *scope, *table, *id);
         db_remove_i64(iter);
     };
 }
 ///Find the table row following the referenced table row in a primary 64-bit integer index table
 pub fn db_next_row(table_owner: AccountName, scope: AccountName, table: TableName, id: PrimaryKey) -> TableRowIterator {
     unsafe {
-        let iter = db_find_i64(table_owner.0, scope.0, table.0, id.0);
+        let iter = db_find_i64(*table_owner, *scope, *table, *id);
         let mut primary = 0;
         let iter = db_next_i64(iter, &mut primary);
-        TableRowIterator(iter)
+        TableRowIterator::new(iter)
     }
 }
 ///Find the table row preceding the referenced table row in a primary 64-bit integer index table
 pub fn db_previous_row(table_owner: AccountName, scope: AccountName, table: TableName, id: PrimaryKey) -> TableRowIterator {
     unsafe {
-        let iter = db_find_i64(table_owner.0, scope.0, table.0, id.0);
+        let iter = db_find_i64(*table_owner, *scope, *table, *id);
         let mut primary = 0;
         let iter = db_previous_i64(iter, &mut primary);
-        TableRowIterator(iter)
+        TableRowIterator::new(iter)
     }
 }
 /// After we polish the basics with allocation and serialization,
 /// we need to figure out how to work with db indexes in EOS.
 pub fn db_read<T: Deserialize>(table_owner: AccountName, scope: AccountName, table: TableName, id: PrimaryKey) -> Result<T, Error> {
     unsafe {
-        let iter = db_find_i64(table_owner.0, scope.0, table.0, id.0);
+        let iter = db_find_i64(*table_owner, *scope, *table, *id);
         let size = ::core::mem::size_of::<T>();
         let align = 1; // 1 byte
         let layout = Layout::from_size_align(size, align).unwrap();
@@ -227,7 +227,7 @@ pub fn db_read<T: Deserialize>(table_owner: AccountName, scope: AccountName, tab
 /// Read raw bytes from db
 pub fn db_read_bytes(table_owner: AccountName, scope: AccountName, table: TableName, id: PrimaryKey) -> Vec<u8> {
     unsafe {
-        let iter = db_find_i64(table_owner.0, scope.0, table.0, id.0);
+        let iter = db_find_i64(*table_owner, *scope, *table, *id);
         let size = db_get_i64(iter, null_mut(), 0);
         let mut res: Vec<u8> = Vec::with_capacity(size as usize);
         res.set_len(size as usize);
@@ -238,29 +238,29 @@ pub fn db_read_bytes(table_owner: AccountName, scope: AccountName, table: TableN
 ///Find a table row in a primary 64-bit integer index table by primary key
 pub fn db_find(table_owner: AccountName, scope: AccountName, table: TableName, id: PrimaryKey) -> TableRowIterator {
     unsafe {
-        let iter = db_find_i64(table_owner.0, scope.0, table.0, id.0);
-        TableRowIterator(iter)
+        let iter = db_find_i64(*table_owner, *scope, *table, *id);
+        TableRowIterator::new(iter)
     }
 }
 ///Find the table row in a primary 64-bit integer index table that matches the lowerbound condition for a given primary key
 pub fn db_lowerbound(table_owner: AccountName, scope: AccountName, table: TableName, id: PrimaryKey) -> TableRowIterator {
     unsafe {
-        let iter = db_lowerbound_i64(table_owner.0, scope.0, table.0, id.0);
-        TableRowIterator(iter)
+        let iter = db_lowerbound_i64(*table_owner, *scope, *table, *id);
+        TableRowIterator::new(iter)
     }
 }
 ///Find the table row in a primary 64-bit integer index table that matches the upperbound condition for a given primary key
 pub fn db_upperbound(table_owner: AccountName, scope: AccountName, table: TableName, id: PrimaryKey) -> TableRowIterator {
     unsafe {
-        let iter = db_upperbound_i64(table_owner.0, scope.0, table.0, id.0);
-        TableRowIterator(iter)
+        let iter = db_upperbound_i64(*table_owner, *scope, *table, *id);
+        TableRowIterator::new(iter)
     }
 }
 ///Get an iterator representing just-past-the-end of the last table row of a primary 64-bit integer index table
 pub fn db_end(table_owner: AccountName, scope: AccountName, table: TableName) -> TableRowIterator {
     unsafe {
-        let iter = db_end_i64(table_owner.0, scope.0, table.0);
-        TableRowIterator(iter)
+        let iter = db_end_i64(*table_owner, *scope, *table);
+        TableRowIterator::new(iter)
     }
 }
 ///Store an association of a 64-bit integer secondary key to a primary key in a secondary 64-bit integer index table
@@ -272,34 +272,34 @@ pub fn db_association_i64_store(
     secondary_key: u64,
 ) -> TableRowIterator {
     unsafe {
-        let iter = db_idx64_store(scope.0, table.0, payer.0, primary_key.0, &secondary_key);
-        TableRowIterator(iter)
+        let iter = db_idx64_store(*scope, *table, *payer, *primary_key, &secondary_key);
+        TableRowIterator::new(iter)
     }
 }
 ///Update an association for a 64-bit integer secondary key to a primary key in a secondary 64-bit integer index table
 pub fn db_association_i64_update(iter: TableRowIterator, payer: AccountName, secondary_key: SecondaryKeyU64) {
     unsafe {
-        db_idx64_update(iter.0, payer.0, &secondary_key.0);
+        db_idx64_update(*iter, *payer, &*secondary_key);
     }
 }
 ///Remove a table row from a secondary 64-bit integer index table
 pub fn db_association_i64_remove(iter: TableRowIterator) {
     unsafe {
-        db_idx64_remove(iter.0);
+        db_idx64_remove(*iter);
     }
 }
 ///Find the table row following the referenced table row in a secondary 64-bit integer index table
 pub fn db_association_i64_next(iter: TableRowIterator, primary_key: PrimaryKey) -> TableRowIterator {
     unsafe {
-        let iter = db_idx64_next(iter.0, &primary_key.0);
-        TableRowIterator(iter)
+        let iter = db_idx64_next(*iter, &*primary_key);
+        TableRowIterator::new(iter)
     }
 }
 ///Find the table row preceding the referenced table row in a secondary 64-bit integer index table
 pub fn db_association_i64_previous(iter: TableRowIterator, primary_key: PrimaryKey) -> TableRowIterator {
     unsafe {
-        let iter = db_idx64_previous(iter.0, &primary_key.0);
-        TableRowIterator(iter)
+        let iter = db_idx64_previous(*iter, &*primary_key);
+        TableRowIterator::new(iter)
     }
 }
 ///Find a table row in a secondary 64-bit integer index table by primary key
@@ -311,8 +311,8 @@ pub fn db_association_i64_find_primary(
 ) -> (SecondaryKeyU64, TableRowIterator) {
     unsafe {
         let mut secondary = 0;
-        let iter = db_idx64_find_primary(table_owner.0, scope.0, table.0, &mut secondary, primary.0);
-        (SecondaryKeyU64(secondary), TableRowIterator(iter))
+        let iter = db_idx64_find_primary(*table_owner, *scope, *table, &mut secondary, *primary);
+        (SecondaryKeyU64::new(secondary), TableRowIterator::new(iter))
     }
 }
 ///Find a table row in a secondary 64-bit integer index table by secondary key
@@ -324,8 +324,8 @@ pub fn db_association_i64_find_secondary(
 ) -> (PrimaryKey, TableRowIterator) {
     unsafe {
         let mut primary = 0;
-        let iter = db_idx64_find_secondary(table_owner.0, scope.0, table.0, &secondary.0, &mut primary);
-        (PrimaryKey(primary), TableRowIterator(iter))
+        let iter = db_idx64_find_secondary(*table_owner, *scope, *table, &*secondary, &mut primary);
+        (PrimaryKey::new(primary), TableRowIterator::new(iter))
     }
 }
 ///Find the table row in a secondary 64-bit integer index table that matches the lowerbound condition for a given secondary key
@@ -337,8 +337,12 @@ pub fn db_association_i64_lowerbound(
     unsafe {
         let mut primary = 0;
         let mut secondary = 0;
-        let iter = db_idx64_lowerbound(table_owner.0, scope.0, table.0, &mut secondary, &mut primary);
-        (PrimaryKey(primary), SecondaryKeyU64(secondary), TableRowIterator(iter))
+        let iter = db_idx64_lowerbound(*table_owner, *scope, *table, &mut secondary, &mut primary);
+        (
+            PrimaryKey::new(primary),
+            SecondaryKeyU64::new(secondary),
+            TableRowIterator::new(iter),
+        )
     }
 }
 ///Find the table row in a secondary 64-bit integer index table that matches the upperbound condition for a given secondary key
@@ -350,15 +354,19 @@ pub fn db_association_i64_upperbound(
     unsafe {
         let mut primary = 0;
         let mut secondary = 0;
-        let iter = db_idx64_upperbound(table_owner.0, scope.0, table.0, &mut secondary, &mut primary);
-        (PrimaryKey(primary), SecondaryKeyU64(secondary), TableRowIterator(iter))
+        let iter = db_idx64_upperbound(*table_owner, *scope, *table, &mut secondary, &mut primary);
+        (
+            PrimaryKey::new(primary),
+            SecondaryKeyU64::new(secondary),
+            TableRowIterator::new(iter),
+        )
     }
 }
 ///Get an end iterator representing just-past-the-end of the last table row of a secondary 64-bit integer index table
 pub fn db_association_i64_end(table_owner: AccountName, scope: AccountName, table: TableName) -> TableRowIterator {
     unsafe {
-        let iter = db_idx64_end(table_owner.0, scope.0, table.0);
-        TableRowIterator(iter)
+        let iter = db_idx64_end(*table_owner, *scope, *table);
+        TableRowIterator::new(iter)
     }
 }
 
@@ -371,34 +379,34 @@ pub fn db_association_f64_store(
     secondary_key: SecondaryKeyF64,
 ) -> TableRowIterator {
     unsafe {
-        let iter = db_idx_double_store(scope.0, table.0, payer.0, primary_key.0, &secondary_key.0);
-        TableRowIterator(iter)
+        let iter = db_idx_double_store(*scope, *table, *payer, *primary_key, &*secondary_key);
+        TableRowIterator::new(iter)
     }
 }
 ///Update an association for a double-precision floating-point secondary key to a primary key in a secondary double-precision floating-point index table
 pub fn db_association_f64_update(iter: TableRowIterator, payer: AccountName, secondary_key: SecondaryKeyF64) {
     unsafe {
-        db_idx_double_update(iter.0, payer.0, &secondary_key.0);
+        db_idx_double_update(*iter, *payer, &*secondary_key);
     }
 }
 ///Remove a table row from a secondary double-precision floating-point index table
 pub fn db_association_f64_remove(iter: TableRowIterator) {
     unsafe {
-        db_idx_double_remove(iter.0);
+        db_idx_double_remove(*iter);
     }
 }
 ///Find the table row following the referenced table row in a secondary double-precision floating-point index table
 pub fn db_association_f64_next(iter: TableRowIterator, primary_key: PrimaryKey) -> TableRowIterator {
     unsafe {
-        let iter = db_idx_double_next(iter.0, &primary_key.0);
-        TableRowIterator(iter)
+        let iter = db_idx_double_next(*iter, &*primary_key);
+        TableRowIterator::new(iter)
     }
 }
 ///Find the table row preceding the referenced table row in a secondary double-precision floating-point index table
 pub fn db_association_f64_previous(iter: TableRowIterator, primary_key: PrimaryKey) -> TableRowIterator {
     unsafe {
-        let iter = db_idx_double_previous(iter.0, &primary_key.0);
-        TableRowIterator(iter)
+        let iter = db_idx_double_previous(*iter, &*primary_key);
+        TableRowIterator::new(iter)
     }
 }
 ///Find a table row in a secondary double-precision floating-point index table by primary key
@@ -410,8 +418,8 @@ pub fn db_association_f64_find_primary(
 ) -> (SecondaryKeyF64, TableRowIterator) {
     unsafe {
         let mut secondary = 0f64;
-        let iter = db_idx_double_find_primary(table_owner.0, scope.0, table.0, &mut secondary, primary.0);
-        (SecondaryKeyF64(secondary), TableRowIterator(iter))
+        let iter = db_idx_double_find_primary(*table_owner, *scope, *table, &mut secondary, *primary);
+        (SecondaryKeyF64::new(secondary), TableRowIterator::new(iter))
     }
 }
 ///Find a table row in a secondary double-precision floating-point index table by secondary key
@@ -423,8 +431,8 @@ pub fn db_association_f64_find_secondary(
 ) -> (PrimaryKey, TableRowIterator) {
     unsafe {
         let mut primary = 0;
-        let iter = db_idx_double_find_secondary(table_owner.0, scope.0, table.0, &secondary.0, &mut primary);
-        (PrimaryKey(primary), TableRowIterator(iter))
+        let iter = db_idx_double_find_secondary(*table_owner, *scope, *table, &*secondary, &mut primary);
+        (PrimaryKey::new(primary), TableRowIterator::new(iter))
     }
 }
 ///Find the table row in a secondary double-precision floating-point index table that matches the lowerbound condition for a given secondary key
@@ -436,8 +444,12 @@ pub fn db_association_f64_lowerbound(
     unsafe {
         let mut primary = 0;
         let mut secondary = 0f64;
-        let iter = db_idx_double_lowerbound(table_owner.0, scope.0, table.0, &mut secondary, &mut primary);
-        (PrimaryKey(primary), SecondaryKeyF64(secondary), TableRowIterator(iter))
+        let iter = db_idx_double_lowerbound(*table_owner, *scope, *table, &mut secondary, &mut primary);
+        (
+            PrimaryKey::new(primary),
+            SecondaryKeyF64::new(secondary),
+            TableRowIterator::new(iter),
+        )
     }
 }
 ///Find the table row in a secondary double-precision floating-point index table that matches the upperbound condition for a given secondary key
@@ -449,14 +461,18 @@ pub fn db_association_f64_upperbound(
     unsafe {
         let mut primary = 0;
         let mut secondary = 0f64;
-        let iter = db_idx_double_upperbound(table_owner.0, scope.0, table.0, &mut secondary, &mut primary);
-        (PrimaryKey(primary), SecondaryKeyF64(secondary), TableRowIterator(iter))
+        let iter = db_idx_double_upperbound(*table_owner, *scope, *table, &mut secondary, &mut primary);
+        (
+            PrimaryKey::new(primary),
+            SecondaryKeyF64::new(secondary),
+            TableRowIterator::new(iter),
+        )
     }
 }
 ///Get an end iterator representing just-past-the-end of the last table row of a secondary double-precision floating-point index table
 pub fn db_association_f64_end(table_owner: AccountName, scope: AccountName, table: TableName) -> TableRowIterator {
     unsafe {
-        let iter = db_idx_double_end(table_owner.0, scope.0, table.0);
-        TableRowIterator(iter)
+        let iter = db_idx_double_end(*table_owner, *scope, *table);
+        TableRowIterator::new(iter)
     }
 }

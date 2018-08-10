@@ -29,26 +29,26 @@ extern "C" {
 
 /// Tests if the sha256 hash generated from data matches the provided checksum.
 pub fn assert_eq_sha256(data: &[Opaque], hash: CheckSum256) {
-    unsafe { assert_sha256(data.as_ptr(), data.len(), hash.0.as_ptr()) }
+    unsafe { assert_sha256(data.as_ptr(), data.len(), hash.as_ptr()) }
 }
 /// Tests if the sha1 hash generated from data matches the provided checksum.
 pub fn assert_eq_sha1(data: &[Opaque], hash: CheckSum160) {
-    unsafe { assert_sha1(data.as_ptr(), data.len(), hash.0.as_ptr()) }
+    unsafe { assert_sha1(data.as_ptr(), data.len(), hash.as_ptr()) }
 }
 /// Tests if the sha512 hash generated from data matches the provided checksum.
 pub fn assert_eq_sha512(data: &[Opaque], hash: CheckSum512) {
-    unsafe { assert_sha512(data.as_ptr(), data.len(), hash.0.as_ptr()) }
+    unsafe { assert_sha512(data.as_ptr(), data.len(), hash.as_ptr()) }
 }
 /// Tests if the ripemod160 hash generated from data matches the provided checksum.
 pub fn assert_eq_ripemd160(data: &[Opaque], hash: CheckSum160) {
-    unsafe { assert_ripemd160(data.as_ptr(), data.len(), hash.0.as_ptr()) }
+    unsafe { assert_ripemd160(data.as_ptr(), data.len(), hash.as_ptr()) }
 }
 /// Hashes data using sha256 and stores result in memory pointed to by hash.
 pub fn generate_sha256(data: &[Opaque]) -> CheckSum256 {
     unsafe {
         let hash = [0; 32];
         sha256(data.as_ptr(), data.len(), hash.as_ptr() as *mut Opaque);
-        CheckSum256(hash)
+        CheckSum256::new(hash)
     }
 }
 /// Hashes data using sha1 and stores result in memory pointed to by hash.
@@ -56,7 +56,7 @@ pub fn generate_sha1(data: &[Opaque]) -> CheckSum160 {
     unsafe {
         let hash = [0; 20];
         sha1(data.as_ptr(), data.len(), hash.as_ptr() as *mut Opaque);
-        CheckSum160(hash)
+        CheckSum160::new(hash)
     }
 }
 /// Hashes data using sha512 and stores result in memory pointed to by hash.
@@ -64,7 +64,7 @@ pub fn generate_sha512(data: &[Opaque]) -> CheckSum512 {
     unsafe {
         let hash = [0; 64];
         sha512(data.as_ptr(), data.len(), hash.as_ptr() as *mut Opaque);
-        CheckSum512(hash)
+        CheckSum512::new(hash)
     }
 }
 /// Hashes data using ripemod160 and stores result in memory pointed to by hash.
@@ -72,7 +72,7 @@ pub fn generate_ripemd160(data: &[Opaque]) -> CheckSum160 {
     unsafe {
         let hash = [0; 20];
         ripemd160(data.as_ptr(), data.len(), hash.as_ptr() as *mut Opaque);
-        CheckSum160(hash)
+        CheckSum160::new(hash)
     }
 }
 /// Calculates the public key used for a given signature and hash used to create a message.
