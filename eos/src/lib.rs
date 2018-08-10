@@ -78,10 +78,6 @@ cfg_if! {
         use bindings::console::*;
 
         /// This function is needed for global allocator with `#![no_std]`.
-        #[lang = "eh_personality"]
-        extern "C" fn eh_personality() {}
-
-        /// This function is needed for global allocator with `#![no_std]`.
         #[panic_implementation]
         pub fn panic(_info: &PanicInfo) -> ! {
             print_str("Wasm panicked!");
