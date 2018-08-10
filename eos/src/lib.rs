@@ -42,6 +42,10 @@
 extern crate alloc;
 #[macro_use]
 extern crate cfg_if;
+#[macro_use]
+extern crate derive_new;
+#[macro_use]
+extern crate new_type_deref_derive;
 
 mod allocators;
 pub mod bindings;

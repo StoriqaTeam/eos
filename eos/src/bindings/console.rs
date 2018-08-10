@@ -148,7 +148,7 @@ fn base32_to_byte(b: u8) -> u8 {
 pub fn name_to_str(name: u64) -> Result<String, Error> {
     let mut slice = [0; 12];
     for i in 0..12 {
-        let mut mask : u64 = 0b0001_1111 << 5 * i;
+        let mut mask: u64 = 0b0001_1111 << 5 * i;
         let mut b = name & mask;
         b >>= 5 * i;
         let s = base32_to_byte(b as u8);

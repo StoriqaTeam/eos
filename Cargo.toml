@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "eos",
+    "new_type_deref_derive",
     "examples/review",
 ]
 

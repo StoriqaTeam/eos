@@ -22,6 +22,7 @@ mod models;
 use eos::bindings::action::*;
 use eos::bindings::console::*;
 use eos::bindings::db::*;
+use eos::types::*;
 
 use models::{ReadReviewAction, Review};
 
@@ -35,8 +36,8 @@ pub extern "C" fn init() {
 
 /// Do some stuff with review smart contract
 #[no_mangle]
-pub extern "C" fn apply(receiver: u64, _code: u64, action: u64) {
-    if let Ok(action) = name_to_str(action) {
+pub extern "C" fn apply(receiver: AccountName, _code: u64, action: ActionName) {
+    if let Ok(action) = name_to_str(*action) {
         match action.as_ref() {
             "review.add" => {
                 if let Ok(review) = read_action::<Review>() {
@@ -66,27 +67,27 @@ pub extern "C" fn apply(receiver: u64, _code: u64, action: u64) {
     }
 }
 
-fn review_add(receiver: u64, review: Review) {
+fn review_add(receiver: AccountName, review: Review) {
     print_str("Received action `review.add` for id: ");
-    print_u64(review.id);
+    print_u64(*review.id);
     print_str("\n");
-    db_store(receiver, TABLE_NAME, receiver, review.id, &review);
+    db_store(receiver, TableName::new(TABLE_NAME), receiver, review.id, &review);
 }
 
-fn review_update(receiver: u64, mut review: Review) {
+fn review_update(receiver: AccountName, mut review: Review) {
     print_str("Received action `review.update` for id: ");
-    print_u64(review.id);
+    print_u64(*review.id);
     print_str("\n");
-    db_update(receiver, receiver, receiver, TABLE_NAME, review.id, &mut review);
+    db_update(receiver, receiver, receiver, TableName::new(TABLE_NAME), review.id, &mut review);
 }
 
-fn review_read(receiver: u64, id: u64) {
+fn review_read(receiver: AccountName, id: PrimaryKey) {
     print_str("Received action `review.read` for id: ");
-    print_u64(id);
+    print_u64(*id);
     print_str("\n");
-    if let Ok(review) = db_read::<Review>(receiver, receiver, TABLE_NAME, id) {
+    if let Ok(review) = db_read::<Review>(receiver, receiver, TableName::new(TABLE_NAME), id) {
         print_str("Found review with id: ");
-        print_u64(review.id);
+        print_u64(*review.id);
         print_str("\n");
         print_str("byte1: ");
         print_u64(review.byte1);

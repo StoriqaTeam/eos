@@ -1,0 +1,14 @@
+[package]
+name = "new_type_deref_derive"
+version = "0.1.0"
+authors = ["Alexey Karasev <karasev.alexey@gmail.com>, Sergey Efremov <s.efremov@storiqa.com>"]
+description = "Derive macro Deref for new types with no std"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "0.14.4"
+quote = "0.6.3"
+proc-macro2="0.4.6"
+heck="*"

@@ -1,9 +1,10 @@
 use eos::deserialize::{Deserialize, Reader};
 use eos::error::Error;
+use eos::types::PrimaryKey;
 
 #[repr(C)]
 pub struct Review {
-    pub id: u64,
+    pub id: PrimaryKey,
     pub byte1: u64,
     pub byte2: u64,
     pub byte3: u64,
@@ -18,7 +19,7 @@ impl Deserialize for Review {
         let byte3: u64 = d.read_sized()?;
         let byte4: u64 = d.read_sized()?;
         Ok(Review {
-            id,
+            id: PrimaryKey::new(id),
             byte1,
             byte2,
             byte3,
@@ -29,12 +30,12 @@ impl Deserialize for Review {
 
 #[repr(C)]
 pub struct ReadReviewAction {
-    pub id: u64,
+    pub id: PrimaryKey,
 }
 
 impl Deserialize for ReadReviewAction {
     fn deserialize(mut d: Reader) -> Result<Self, Error> {
         let id: u64 = d.read_sized()?;
-        Ok(ReadReviewAction { id })
+        Ok(ReadReviewAction { id: PrimaryKey::new(id) })
     }
 }
