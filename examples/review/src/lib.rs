@@ -19,6 +19,7 @@ extern crate eos;
 
 mod models;
 
+use eos::allocators::custom::Allocator;
 use eos::bindings::action::*;
 use eos::bindings::console::*;
 use eos::bindings::db::*;
@@ -37,6 +38,7 @@ pub extern "C" fn init() {
 /// Do some stuff with review smart contract
 #[no_mangle]
 pub extern "C" fn apply(receiver: AccountName, _code: u64, action: ActionName) {
+    Allocator::init();
     if let Ok(action) = name_to_str(*action) {
         match action.as_ref() {
             "review.add" => {

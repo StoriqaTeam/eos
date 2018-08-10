@@ -27,7 +27,15 @@
 //! ```
 
 #![no_std]
-#![feature(alloc, global_alloc, core_intrinsics, oom, panic_implementation, lang_items)]
+#![feature(
+    alloc,
+    global_alloc,
+    core_intrinsics,
+    oom,
+    panic_implementation,
+    lang_items,
+    link_llvm_intrinsics
+)]
 #![deny(
     missing_docs,
     warnings,
@@ -47,7 +55,7 @@ extern crate derive_new;
 #[macro_use]
 extern crate new_type_deref_derive;
 
-mod allocators;
+pub mod allocators;
 pub mod bindings;
 pub mod deserialize;
 pub mod error;

@@ -1,7 +1,17 @@
+//! Custom memory allocator
+
 use alloc::alloc::Layout;
 use core::alloc::GlobalAlloc;
 
 use types::Opaque;
+
+extern "C" {
+    // #[link_name = "llvm.wasm.current.memory.i32"]
+    // fn current_memory() -> usize;
+
+    // #[link_name = "llvm.wasm.grow.memory.i32"]
+    // fn grow_memory(pages: usize) -> i32;
+}
 
 /// Start address of memory for smart contract
 /// Strange behaviour: If put 0 here wasm generates unreachable instruction!
@@ -16,6 +26,7 @@ impl Allocator {
     /// This is an ugly workaround. TODO: Explore this issue
     pub fn init() {
         unsafe {
+            // grow_memory(1);
             START_ADDRESS.write(START_ADDRESS as u16 + 2);
         }
     }
