@@ -36,16 +36,16 @@
     lang_items,
     link_llvm_intrinsics
 )]
-#![deny(
-    missing_docs,
-    warnings,
-    missing_debug_implementations,
-    missing_copy_implementations,
-    trivial_casts,
-    trivial_numeric_casts,
-    unused_import_braces,
-    unused_qualifications
-)]
+// #![deny(
+//     missing_docs,
+//     warnings,
+//     missing_debug_implementations,
+//     missing_copy_implementations,
+//     trivial_casts,
+//     trivial_numeric_casts,
+//     unused_import_braces,
+//     unused_qualifications
+// )]
 
 extern crate alloc;
 #[macro_use]

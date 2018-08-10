@@ -1,4 +1,5 @@
 //! Defnes API to log/print text messages.
+// use alloc::prelude::ToString;
 use alloc::string::String;
 
 use error::Error;
@@ -140,7 +141,7 @@ fn base32_to_byte(b: u8) -> u8 {
     match b {
         6...31 => b + 97 - 6,
         1...6 => b + 49 - 1,
-        _ => 0,
+        _ => 46,
     }
 }
 
@@ -148,14 +149,36 @@ fn base32_to_byte(b: u8) -> u8 {
 pub fn name_to_str(name: u64) -> Result<String, Error> {
     let mut slice = [0; 12];
     for i in 0..12 {
-        let mut mask: u64 = 0b0001_1111 << 5 * i;
+        let mut mask: u64 = 0b0001_1111 << (64 - 5 * (i + 1));
         let mut b = name & mask;
-        b >>= 5 * i;
+        b >>= 64 - 5 * (i + 1);
         let s = base32_to_byte(b as u8);
         slice[i] = s;
     }
     match String::from_utf8(slice.to_vec()) {
-        Ok(s) => Ok(s),
+        Ok(mut s) => {
+            let len = s.len();
+            let mut i = s.len() - 1;
+            let mut j = 0;
+            loop {
+                if let Some(last_char) = s.chars().nth(i) {
+                    if last_char == '.' {
+                        j += 1;
+                    } else {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+                if i == 0 {
+                    break;
+                }
+                i -= 1;
+            }
+            print_i64(j as i64);
+            s.truncate(len - j);
+            Ok(s)
+        }
         Err(_) => Err(Error::Utf8Error),
     }
 }

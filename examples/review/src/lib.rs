@@ -40,6 +40,7 @@ pub extern "C" fn init() {
 pub extern "C" fn apply(receiver: AccountName, _code: u64, action: ActionName) {
     Allocator::init();
     if let Ok(action) = name_to_str(*action) {
+        print_str(&action);
         match action.as_ref() {
             "review.add" => {
                 if let Ok(review) = read_action::<Review>() {
