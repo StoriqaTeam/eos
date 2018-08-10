@@ -31,7 +31,7 @@ const TABLE_NAME: u64 = 1;
 /// Init review smart contract
 #[no_mangle]
 pub extern "C" fn init() {
-    print_str("Deployed");
+    print_str("D");
 }
 
 /// Do some stuff with review smart contract

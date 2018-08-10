@@ -5,7 +5,7 @@ use error::Error;
 
 extern "C" {
     // Prints string
-    fn prints(cstr: *const u8);
+    // fn prints(cstr: *const u8);
     // Prints string up to given length
     fn prints_l(cstr: *const u8, len: usize);
 
@@ -87,7 +87,7 @@ pub fn print_f64(df: f64) {
 pub fn print_str(s: &str) {
     unsafe {
         let bytes = s.as_bytes();
-        prints(bytes.as_ptr());
+        prints_l(bytes.as_ptr(), bytes.len());
     }
 }
 
