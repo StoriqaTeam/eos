@@ -89,14 +89,14 @@ cfg_if! {
         #[panic_implementation]
         pub fn panic(_info: &PanicInfo) -> ! {
             print_str("Wasm panicked!");
-            unsafe { abort() }
+            abort();
         }
 
         /// This function is needed for global allocator with `#![no_std]`.
         #[lang = "oom"]
         pub extern "C" fn oom(_: Layout) -> ! {
             print_str("Out of memory!");
-            unsafe { abort() }
+            abort();
         }
     }
 }

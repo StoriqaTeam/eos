@@ -43,19 +43,4 @@ unsafe impl GlobalAlloc for Allocator {
     /// TODO: Check the up-to-date approach to extern pointers. I think they are using *u8 now or smth like that
     #[inline]
     unsafe fn dealloc(&self, _ptr: *mut Opaque, _layout: Layout) {}
-
-    #[inline]
-    unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut Opaque {
-        self.alloc(layout)
-    }
-
-    #[inline]
-    unsafe fn realloc(&self, ptr: *mut Opaque, layout: Layout, new_size: usize) -> *mut Opaque {
-        let top = START_ADDRESS.read() as *mut Opaque;
-        for i in 0..layout.size() {
-            top.offset(i as isize).write(ptr.offset(i as isize).read());
-        }
-        START_ADDRESS.write((top as u16) + (new_size as u16));
-        top
-    }
 }
